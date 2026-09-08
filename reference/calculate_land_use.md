@@ -10,7 +10,9 @@ calculate_land_use(
   automatic_cycle = FALSE,
   saveoutput = TRUE,
   farm_country = "Spain",
-  year = 2022
+  year = 2024,
+  max_trace_hops = 4,
+  ssr_threshold = 0.7
 )
 ```
 
@@ -34,3 +36,15 @@ calculate_land_use(
 
   Numeric. The reference year for FAO trade data calculation if origins
   are missing. Default is 2022.
+
+- max_trace_hops:
+
+  Numeric. When an ingredient's country of origin has to be inferred
+  from trade data, this caps how many countries the algorithm will
+  follow through re-export hubs. Default is 4.
+
+- ssr_threshold:
+
+  Numeric. Self-Sufficiency Ratio (Production / Apparent Consumption)
+  above which a country is considered a genuine producer. Default is
+  0.70.
