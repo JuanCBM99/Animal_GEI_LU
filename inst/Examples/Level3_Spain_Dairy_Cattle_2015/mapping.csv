@@ -42,9 +42,9 @@ bread_byproduct,Wheat,As wheat,1
 malt_rootlets_barley_sprouts,Barley,,0
 whole_acorn,,,1
 acorn_decorticated,,,1
-tapioca_62_5,,,1
-tapioca_65,,,1
-tapioca_70,,,1
+tapioca_62_5,"Cassava, fresh",,1
+tapioca_65,"Cassava, fresh",,1
+tapioca_70,"Cassava, fresh",,1
 molasses_sugarcane,Sugar cane,As beet molasses,0.066
 molasses_beet,Sugar beet,"Molasses, from sugar beet, animal feed, at plant {FR} U",0.066
 vinasses_beet,Sugar beet,"Vinasse, from sugar beet molasses, animal feed, at plant {FR} U",0.1476
@@ -62,8 +62,8 @@ rapeseed_meal_00_33_cp,Rape or colza seed,"Rapeseed meal, conventional, animal f
 rapeseed_meal_00_36_cp,Rape or colza seed,"Rapeseed meal, conventional, animal feed, at plant {FR} U",0.217
 rapeseed_meal_00_expeller_7_3_ee,Rape or colza seed,"Rapeseed meal, conventional, animal feed, at plant {FR} U",0.217
 rapeseed_meal_00_expeller_12_7_ee,Rape or colza seed,"Rapeseed meal, conventional, animal feed, at plant {FR} U",0.217
-coprah_meal,,As sunflower meal without dehulling,0.189
-coprah_expeller,,As sunflower meal expeller with low dehulling,0.185
+coprah_meal,"Coconuts, in shell",As sunflower meal without dehulling,0.189
+coprah_expeller,"Coconuts, in shell",As sunflower meal expeller with low dehulling,0.185
 sunflower_seed,Sunflower seed,"Sunflower grain, conventional, 9% moisture, national average, animal feed, at farm gate, production {FR} U",1
 sunflower_seed_high_oileic,Sunflower seed,"Sunflower grain, conventional, 9% moisture, national average, animal feed, at farm gate, production {FR} U",1
 sunflower_meal_28_cp,Sunflower seed,"Sunflower meal without dehulling, conventional, animal feed, at transformation plant {FR} U",0.189
@@ -79,8 +79,8 @@ lentils,"Lentils, dry",,1
 linseed,Linseed,,1
 linseed_meal_expeller,Linseed,As sunflower meal expeller with low dehulling,0.185
 linseed_meal,Linseed,As sunflower meal without dehulling,0.189
-palm_kernel_expeller,,"Palm kernel meal MY, animal feed, at french port, average {FR} U",0.0672
-palm_kernel_expeller_2,,"Palm kernel meal MY, animal feed, at french port, average {FR} U",0.0672
+palm_kernel_expeller,Palm kernels,"Palm kernel meal MY, animal feed, at french port, average {FR} U",0.0672
+palm_kernel_expeller_2,Palm kernels,"Palm kernel meal MY, animal feed, at french port, average {FR} U",0.0672
 roasted_soybeans,Soya beans,"Soybean toasted BR, animal feed, at french transformation plant {FR} U",1
 extruded_soybeans,Soya beans,"Soybean extruded, animal feed, at french transformation plant {FR} U",1
 soybean_meal_44_cp,Soya beans,"Soybean meal BR, crushing in France, animal feed, at french mill, average {FR} U",0.6146
