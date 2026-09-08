@@ -56,7 +56,7 @@ Only needs editing if the population of some animal categories is unknown, or if
 
 ---
 
-## II. Reference Libraries (Consult Only)
+# II. Reference Libraries (Consult Only)
 
 These files are the "brain" of the package. You should **not** edit them unless you are an advanced user — but you must **consult them** to copy the exact names required in your input files.
 
@@ -64,28 +64,42 @@ These files are the "brain" of the package. You should **not** edit them unless 
 
 Consult this library to find the correct ingredient names for `diet_ingredients.csv`.
 
-**Key columns:**
+### Key columns
 
 | Column | Meaning |
 |:---|:---|
-| `ingredient` | Ingredient name |
-| `feed_category` | Feed category |
-| `DM_pct` | Dry Matter, % as-fed |
+| `ingredient` | Unique ingredient identifier (lowercase with underscores) |
+| `ingredient_type` | Category: `forage`, `concentrate`, `milk`, or `milk_replacer` |
+| `land_type` | Agroecological land competition: `cropland`, `grassland_convertible`, `grassland_unconvertible`, or `none` |
+| `DM_pct` | Dry Matter, % as-fed (also scales fresh FAO crop yields to DM) |
 | `ASH_pct` | Ash, % DM |
 | `CP_pct` | Crude Protein, % DM |
 | `EE_pct` | Ether Extract, % DM |
 | `NDF_pct` | Neutral Detergent Fiber, % DM |
 | `DE_pct` | Digestible Energy, % |
+| `source_DE` | Source or methodology for the Digestible Energy value |
 | `GE_feed_kcal_kg` | Gross Energy, kcal/kg DM |
 | `swine_DE_kcal_kg` | Digestible Energy for swine, kcal/kg DM |
 | `swine_ME_kcal_kg` | Metabolizable Energy for swine, kcal/kg DM |
 | `poultry_ME_kcal_kg` | Metabolizable Energy for poultry, kcal/kg DM |
 
-**Sources:** most nutritional values come from the **FEDNA Tables (2019)**. `DE_pct` values are taken from **Feedipedia**. `GE_feed_kcal_kg` is calculated using the **NRC (1998) Ewan equation**:
+### Sources
+
+- Most nutritional values come from the **FEDNA Tables (2019)**.
+- `DE_pct` values are typically taken from **Feedipedia**, or specifically tracked via the `source_DE` column.
+- **Forages (`DE_pct`)**: Forage ingredients often lack standard values. Following the reference methodology, Energy Digestibility ($Ed$, equivalent to `DE_pct`) is derived from Organic Matter digestibility ($OMd$). First, $OMd$ is estimated from Acid Detergent Fiber ($ADF$):
+
+$$OMd = 74.13 - 1.364 \times (ADF - 29.83)$$
+
+  Then, $Ed$ is calculated using the full regression equation:
+
+$$Ed = OMd - 3.94 + 0.104 \times CP + 0.149 \times EE + 0.022 \times NDF - 0.244 \times Ash$$
+
+- `GE_feed_kcal_kg` is calculated using the **NRC (1989) Ewan equation**:
 
 $$GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \times ASH\%)$$
 
-where `EE%`, `CP%`, and `ASH%` correspond to the `EE_pct`, `CP_pct`, and `ASH_pct` columns above.
+  where `EE%`, `CP%`, and `ASH%` correspond to the `EE_pct`, `CP_pct`, and `ASH_pct` columns above.
 
 ### `ipcc_coefficients.csv` — Metabolic Constants
 

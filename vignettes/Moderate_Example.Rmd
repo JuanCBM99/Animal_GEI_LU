@@ -44,16 +44,16 @@ Forage availability differs between North and South, so both the diet profile an
 
 The forage proportion is higher in the North (55%) than in the South (50%).
 
-| diet_tag | region | subregion | forage | concentrate | milk |
-|:---|:---|:---|---:|---:|---:|
-| `diet_dairy_mature` | `spain` | `north` | 55 | 45 | 0 |
-| `diet_dairy_mature` | `spain` | `south` | 50 | 50 | 0 |
+| diet_tag | region | subregion | forage_share | concentrate_share | milk_share | milk_replacer_share |
+|:---|:---|:---|---:|---:|---:|---:|
+| `diet_dairy_mature` | `spain` | `north` | 55 | 45 | 0 | 0 |
+| `diet_dairy_mature` | `spain` | `south` | 50 | 50 | 0 | 0 |
 
 ### B. Ingredient breakdown — `diet_ingredients.csv`
 
-Within each `feed_category`, `percentage` must sum to 100%. Here's the concentrate portion for Spain South:
+Within each `ingredient_type`, `ingredient_share` must sum to 100%. Here's the concentrate portion for Spain South:
 
-| diet_tag | region | subregion | feed_category | ingredient | percentage | country_of_origin | custom_yield_kg_ha |
+| diet_tag | region | subregion | ingredient_type | ingredient | ingredient_share | country_of_origin | custom_yield_kg_ha |
 |:---|:---|:---|:---|:---|---:|:---|---:|
 | `diet_dairy_mature` | `spain` | `south` | concentrate | `corn_national` | 44.85 | `spain` | `NA` |
 | `diet_dairy_mature` | `spain` | `south` | concentrate | `soybean_meal_44_cp` | 17.12 | `NA` | `NA` |
@@ -67,12 +67,12 @@ Within each `feed_category`, `percentage` must sum to 100%. Here's the concentra
 
 ## Step 3 — Animal Categories and Coefficients
 
-Open `ruminant_definitions.csv`. This file links your animal tags to the IPCC physiological equations — each of `cfi`, `ca`, `c`, and `c_pregnancy` is a separate lookup into `ipcc_coefficients.csv`.
+Open `ruminant_definitions.csv`. This file links your animal tags to the IPCC physiological equations — each of `cfi`, `ca`, `c`, and `c_pregnancy_cattle` is a separate lookup into `ipcc_coefficients.csv`.
 
-| animal_tag | region | subregion | diet_tag | cfi | ca | c | milk_yield | fat_content | c_pregnancy | animal_type |
-|:---|:---|:---|:---|:---|:---|:---|---:|---:|:---|:---|
-| `mature_dairy_cattle` | `spain` | `north` | `diet_dairy_mature` | `cattle_buffalo [lactating]` | `stall` | `females` | 8,295.0 | 3.73 | `cattle and buffalo` | `cattle` |
-| `mature_dairy_cattle` | `spain` | `south` | `diet_dairy_mature` | `cattle_buffalo [lactating]` | `stall` | `females` | 9,044.0 | 3.73 | `cattle and buffalo` | `cattle` |
+| animal_tag | region | subregion | diet_tag | cfi | ca | c | milk_yield_kg_year | fat_content_pct | c_pregnancy_cattle | animal_type | animal_subtype |
+|:---|:---|:---|:---|:---|:---|:---|---:|---:|:---|:---|:---|
+| `mature_dairy_cattle` | `spain` | `north` | `diet_dairy_mature` | `cattle_buffalo [lactating cows]` | `stall` | `females` | 8,295.0 | 3.73 | `cattle and buffalo` | `cattle` | `dairy` |
+| `mature_dairy_cattle` | `spain` | `south` | `diet_dairy_mature` | `cattle_buffalo [lactating cows]` | `stall` | `females` | 9,044.0 | 3.73 | `cattle and buffalo` | `cattle` | `dairy` |
 
 ---
 
@@ -80,7 +80,7 @@ Open `ruminant_definitions.csv`. This file links your animal tags to the IPCC ph
 
 Open `livestock_weights.csv`. Make sure the identifying keys match the census exactly — these weights validate the dry matter intake (DMI) limits.
 
-| animal_tag | region | subregion | adult_weight | productive_period | initial_weight | final_weight |
+| animal_tag | region | subregion | adult_weight_kg | productive_period_days | initial_weight_kg | final_weight_kg |
 |:---|:---|:---|---:|---:|---:|---:|
 | `mature_dairy_cattle` | `spain` | `north` | 675 | 365 | 675 | 675 |
 | `mature_dairy_cattle` | `spain` | `south` | 675 | 365 | 675 | 675 |
@@ -91,12 +91,12 @@ Open `livestock_weights.csv`. Make sure the identifying keys match the census ex
 
 You can define multiple manure systems for the same cohort by splitting the `allocation` across rows — the sum per `animal_tag`/`region`/`subregion` combination must equal 1.0.
 
-| animal_tag | region | subregion | system_base | system_variant | management_months | system_climate | system_subclimate | climate_zone | climate_moisture | allocation |
-|:---|:---|:---|:---|:---|---:|:---|:---|:---|:---|---:|
-| `mature_dairy_cattle` | `spain` | `north` | `anaerobic_lagoon` | `uncovered` | — | `cool` | `temperate` | `zone_moist` | `wet` | 0.0537 |
-| `mature_dairy_cattle` | `spain` | `north` | `liquid_slurry` | `with_natural_crust_cover` | 3 | `cool` | `temperate` | `zone_moist` | `wet` | 0.3432 |
-| `mature_dairy_cattle` | `spain` | `north` | `solid_storage` | — | — | `cool` | — | — | `default` | 0.3551 |
-| `mature_dairy_cattle` | `spain` | `south` | `solid_storage` | — | — | `warm` | — | — | `default` | 0.3551 |
+| animal_tag | region | subregion | system_base | system_variant | management_months | system_climate | system_subclimate | climate_zone | climate_moisture | b_0 | allocation |
+|:---|:---|:---|:---|:---|---:|:---|:---|:---|:---|:---|---:|
+| `mature_dairy_cattle` | `spain` | `north` | `anaerobic_lagoon` | `uncovered` | — | `cool` | `temperate` | `zone_moist` | `wet` | `dairy_cattle_high_productivity` | 0.0537 |
+| `mature_dairy_cattle` | `spain` | `north` | `liquid_slurry` | `with_natural_crust_cover` | 3 | `cool` | `temperate` | `zone_moist` | `wet` | `dairy_cattle_high_productivity` | 0.3432 |
+| `mature_dairy_cattle` | `spain` | `north` | `solid_storage` | — | — | `cool` | — | — | `default` | `dairy_cattle_high_productivity` | 0.3551 |
+| `mature_dairy_cattle` | `spain` | `south` | `solid_storage` | — | — | `warm` | — | — | `default` | `dairy_cattle_high_productivity` | 0.3551 |
 
 > ⚠️ **Illustrative snippet:** the rows above don't sum to 1.0 per cohort — some rows were omitted here for brevity. In a real project, always check that `allocation` sums to exactly 1.0 for every `animal_tag`/`region`/`subregion` combination before running the model.
 

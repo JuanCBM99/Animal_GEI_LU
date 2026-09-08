@@ -45,7 +45,7 @@ Open `feed_characteristics.csv` to see the list of available feed items. You can
 
 ### B. Define the profile — `diet_profiles.csv`
 
-| diet_tag | region | forage | concentrate | milk | milk_replacer |
+| diet_tag | region | forage_share | concentrate_share | milk_share | milk_replacer_share |
 |:---|:---|---:|---:|---:|---:|
 | `diet_dairy_mature` | `spain` | 60 | 40 | 0 | 0 |
 
@@ -53,27 +53,27 @@ Open `feed_characteristics.csv` to see the list of available feed items. You can
 
 Repeat the same `diet_tag` and `region` once per ingredient.
 
-| diet_tag | region | feed_category | ingredient | percentage | country_of_origin | custom_yield_kg_ha |
+| diet_tag | region | ingredient_type | ingredient | ingredient_share | country_of_origin | custom_yield_kg_ha |
 |:---|:---|:---|:---|---:|:---|---:|
-| `diet_dairy_mature` | `spain` | forage | `corn_silage` | 100 | `spain` | `NA` |
-| `diet_dairy_mature` | `spain` | concentrate | `barley_grain` | 50 | `NA` | `NA` |
-| `diet_dairy_mature` | `spain` | concentrate | `soybean_meal` | 50 | `NA` | 5000 |
+| `diet_dairy_mature` | `spain` | concentrate | `corn_national` | 44.85 | `spain` | `NA` |
+| `diet_dairy_mature` | `spain` | concentrate | `soybean_meal_44_cp` | 17.12 | `NA` | `NA` |
+| `diet_dairy_mature` | `spain` | concentrate | `rapeseed_meal_00_33_cp` | 28.71 | `NA` | 3200 |
 
-> ✅ **Percentages sum to 100% *within* each category** — here, 50% barley + 50% soybean meal make up 100% of the concentrate portion.
+> ✅ **Shares sum to 100% *within* each category** — ensure all `ingredient_share` values within `concentrate` total 100%.
 >
 > 🌍 **Missing origins:** leave `country_of_origin` as `NA` when you don't know where a feed comes from. herdr resolves it automatically using FAO trade data — see [Land Use Methodology](land_use.html) for how.
 >
-> 🎯 **Overriding the yield:** `custom_yield_kg_ha` lets you skip the FAO/trade lookup entirely for a given ingredient. If you already know the real yield for your farm or region — e.g. `5000` kg/ha — enter it here and herdr uses that value directly for the land-use calculation, ignoring `country_of_origin` and any FAO database lookup for that row.
+> 🎯 **Overriding the yield:** `custom_yield_kg_ha` lets you skip the FAO/trade lookup entirely for a given ingredient. If you already know the real yield for your farm or region — e.g. `3200` kg DM/ha — enter it here and herdr uses that value directly for the land-use calculation, ignoring `country_of_origin` and any FAO database lookup for that row.
 
 ---
 
 ## Step 3 — Animal Categories and Coefficients
 
-Open `ruminant_definitions.csv`. This file links your animal to the IPCC Tier 2 equations — each of `cfi`, `ca`, `c`, and `c_pregnancy` is a separate lookup into `ipcc_coefficients.csv`, so use the **exact description** for each as it appears there.
+Open `ruminant_definitions.csv`. This file links your animal to the IPCC Tier 2 equations — each of `cfi`, `ca`, `c`, and `c_pregnancy_cattle` is a separate lookup into `ipcc_coefficients.csv`, so use the **exact description** for each as it appears there.
 
-| animal_tag | region | diet_tag | cfi | ca | c | milk_yield | fat_content | c_pregnancy |
-|:---|:---|:---|:---|:---|:---|---:|---:|:---|
-| `mature_dairy_cattle` | `spain` | `diet_dairy_mature` | `cattle_buffalo [lactating]` | `stall` | `females` | 8,894.38 | 3.73 | `cattle and buffalo` |
+| animal_tag | region | diet_tag | cfi | ca | c | milk_yield_kg_year | fat_content_pct | c_pregnancy_cattle | animal_type | animal_subtype |
+|:---|:---|:---|:---|:---|:---|---:|---:|:---|:---|:---|
+| `mature_dairy_cattle` | `spain` | `diet_dairy_mature` | `cattle_buffalo [lactating cows]` | `stall` | `females` | 8,894.38 | 3.73 | `cattle and buffalo` | `cattle` | `dairy` |
 
 ---
 
@@ -81,7 +81,7 @@ Open `ruminant_definitions.csv`. This file links your animal to the IPCC Tier 2 
 
 Open `livestock_weights.csv`. Make sure the identifying keys match the census exactly.
 
-| animal_tag | region | adult_weight | productive_period | initial_weight | final_weight |
+| animal_tag | region | adult_weight_kg | productive_period_days | initial_weight_kg | final_weight_kg |
 |:---|:---|---:|---:|---:|---:|
 | `mature_dairy_cattle` | `spain` | 675 | 365 | 675 | 675 |
 

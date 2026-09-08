@@ -44,7 +44,7 @@ The census links each population figure to a subregion **and** a physiological s
 
 ### A. Diet profiles — `diet_profiles.csv`
 
-| diet_tag | region | subregion | class_flex | forage | concentrate | milk | milk_replacer |
+| diet_tag | region | subregion | class_flex | forage_share | concentrate_share | milk_share | milk_replacer_share |
 |:---|:---|:---|:---|---:|---:|---:|---:|
 | `diet_dairy_mature` | `spain` | `north` | `dry_phase` | 70 | 30 | 0 | 0 |
 | `diet_dairy_mature` | `spain` | `north` | `lactation_phase` | 55 | 45 | 0 | 0 |
@@ -55,7 +55,7 @@ The census links each population figure to a subregion **and** a physiological s
 
 Ingredients must be assigned precisely to their `subregion` and `class_flex`. Here's the South/lactation profile:
 
-| diet_tag | region | subregion | class_flex | feed_category | ingredient | percentage | country_of_origin | custom_yield_kg_ha |
+| diet_tag | region | subregion | class_flex | ingredient_type | ingredient | ingredient_share | country_of_origin | custom_yield_kg_ha |
 |:---|:---|:---|:---|:---|:---|---:|:---|---:|
 | `diet_dairy_mature` | `spain` | `south` | `lactation_phase` | concentrate | `corn_national` | 44.85 | `spain` | `NA` |
 | `diet_dairy_mature` | `spain` | `south` | `lactation_phase` | concentrate | `soybean_meal_44_cp` | 17.12 | `NA` | `NA` |
@@ -69,14 +69,14 @@ Ingredients must be assigned precisely to their `subregion` and `class_flex`. He
 
 ## Step 3 — Physiological Definitions (`ruminant_definitions.csv`)
 
-This is the most technical file — it determines energy requirements under IPCC Tier 2. Notice how `milk_yield` and `cfi` change between phases.
+This is the most technical file — it determines energy requirements under IPCC Tier 2. Notice how `milk_yield_kg_year` and `cfi` change between phases.
 
-| animal_tag | region | subregion | class_flex | cfi | ca | c | milk_yield | fat_content | c_pregnancy |
-|:---|:---|:---|:---|:---|:---|:---|---:|---:|:---|
-| `mature_dairy_cattle` | `spain` | `north` | `lactation_phase` | `cattle_buffalo [lactating]` | `stall` | `females` | 8,295 | 3.73 | `cattle and buffalo` |
-| `mature_dairy_cattle` | `spain` | `north` | `dry_phase` | `cattle/buffalo` | `stall` | `females` | 0 | 0 | `cattle and buffalo` |
-| `mature_dairy_cattle` | `spain` | `south` | `lactation_phase` | `cattle_buffalo [lactating]` | `stall` | `females` | 9,044 | 3.73 | `cattle and buffalo` |
-| `mature_dairy_cattle` | `spain` | `south` | `dry_phase` | `cattle/buffalo` | `stall` | `females` | 0 | 0 | `cattle and buffalo` |
+| animal_tag | region | subregion | class_flex | diet_tag | cfi | ca | c | milk_yield_kg_year | fat_content_pct | c_pregnancy_cattle | animal_type | animal_subtype |
+|:---|:---|:---|:---|:---|:---|:---|:---|---:|---:|:---|:---|:---|
+| `mature_dairy_cattle` | `spain` | `north` | `lactation_phase` | `diet_dairy_mature` | `cattle_buffalo [lactating cows]` | `stall` | `females` | 8,295 | 3.73 | `cattle and buffalo` | `cattle` | `dairy` |
+| `mature_dairy_cattle` | `spain` | `north` | `dry_phase` | `diet_dairy_mature` | `cattle/buffalo` | `stall` | `females` | 0 | 0 | `cattle and buffalo` | `cattle` | `dairy` |
+| `mature_dairy_cattle` | `spain` | `south` | `lactation_phase` | `diet_dairy_mature` | `cattle_buffalo [lactating cows]` | `stall` | `females` | 9,044 | 3.73 | `cattle and buffalo` | `cattle` | `dairy` |
+| `mature_dairy_cattle` | `spain` | `south` | `dry_phase` | `diet_dairy_mature` | `cattle/buffalo` | `stall` | `females` | 0 | 0 | `cattle and buffalo` | `cattle` | `dairy` |
 
 ---
 
@@ -84,7 +84,7 @@ This is the most technical file — it determines energy requirements under IPCC
 
 Accurate weights are essential to calculate Maintenance Energy ($NE_m$) and to validate the animal's maximum physical intake capacity (DMI as % of body weight).
 
-| animal_tag | region | subregion | class_flex | adult_weight | productive_period | initial_weight | final_weight |
+| animal_tag | region | subregion | class_flex | adult_weight_kg | productive_period_days | initial_weight_kg | final_weight_kg |
 |:---|:---|:---|:---|---:|---:|---:|---:|
 | `mature_dairy_cattle` | `spain` | `north` | `dry_phase` | 675 | 365 | 675 | 675 |
 | `mature_dairy_cattle` | `spain` | `north` | `lactation_phase` | 675 | 365 | 675 | 675 |
