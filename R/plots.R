@@ -7,7 +7,7 @@
 #' @export
 #' @import ggplot2
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr group_by summarise across all_of cur_column arrange mutate
+#' @importFrom dplyr group_by summarise across all_of cur_column arrange mutate filter
 #' @importFrom scales comma
 plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subregion", "class_flex"), func_name = NULL) {
   if (!is.data.frame(df) || nrow(df) == 0) return(NULL)
@@ -43,9 +43,6 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
 
   # =================================================================
   # ROUNDED BARS HELPER
-  # Uses ggchicklet if installed (real rounded "pill" bars). Falls back
-  # to standard geom_col so the function never hard-fails on a missing
-  # optional dependency.
   # =================================================================
   has_chicklet <- requireNamespace("ggchicklet", quietly = TRUE)
 
@@ -58,7 +55,7 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
   }
 
   # =================================================================
-  # VISUAL THEME — soft "card" look, tuned for embedding in a UI
+  # VISUAL THEME
   # =================================================================
   bg_color     <- "#FFFFFF"
   panel_color  <- "#FBFBFC"
@@ -95,10 +92,7 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
       )
   }
 
-  # Format large numbers nicely: 1234.56 -> 1,234.6
   fmt_num <- function(x) formatC(x, format = "f", digits = 1, big.mark = ",")
-
-  # Curated categorical palette (used instead of flat defaults)
   palette_categorical <- c("#2F6B4F", "#D9A441", "#B4483C", "#3B6EA5", "#6C5B9E")
 
   # =================================================================
@@ -156,6 +150,67 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
     )
   }
 
+  # C) LAND USE BREAKDOWN (stacked bars by land_type)
+  if ("land_type" %in% names(df) && any(c("total_land_use_m2", "land_use_per_animal_m2") %in% names(df))) {
+    target_land_var <- if ("total_land_use_m2" %in% names(df)) "total_land_use_m2" else "land_use_per_animal_m2"
+
+    df_land <- df %>%
+      dplyr::filter(!land_type %in% c("none", "no_land", NA_character_))
+
+    if (nrow(df_land) > 0) {
+      df_land_agg <- df_land %>%
+        dplyr::group_by(dplyr::across(dplyr::all_of(c(valid_groups, "land_type")))) %>%
+        dplyr::summarise(
+          Land_Val = sum(.data[[target_land_var]], na.rm = TRUE),
+          .groups = "drop"
+        )
+
+      df_land_agg$plot_label <- apply(df_land_agg[, valid_groups, drop = FALSE], 1, function(x) {
+        valid_vals <- x[!is.na(x) & trimws(x) != ""]
+        if (length(valid_vals) == 0) return("Unknown")
+        paste(valid_vals, collapse = " - ")
+      })
+
+
+      totals <- stats::aggregate(Land_Val ~ plot_label, data = df_land_agg, FUN = sum)
+      totals <- totals[order(totals$Land_Val), ]
+      df_land_agg$plot_label <- factor(df_land_agg$plot_label, levels = totals$plot_label)
+
+
+      palette_land <- c(
+        "cropland"                = "#D97706",
+        "grassland_convertible"   = "#68BB59",
+        "grassland_unconvertible" = "#2F6B4F"
+      )
+
+      labels_land <- c(
+        "cropland"                = "Cropland",
+        "grassland_convertible"   = "Grassland (Convertible)",
+        "grassland_unconvertible" = "Grassland (Unconvertible)"
+      )
+
+      unit_title <- if (target_land_var == "total_land_use_m2") "Total Land Use (m2)" else "Land Use per Animal (m2)"
+      subtitle_txt <- if (target_land_var == "total_land_use_m2") "Total land footprint breakdown by agroecological type" else "Land footprint per animal by agroecological type"
+
+      return(
+        ggplot(df_land_agg, aes(x = Land_Val, y = plot_label, fill = land_type)) +
+          geom_col(width = 0.62) +
+          theme_herdr_plot() +
+          scale_x_continuous(expand = expansion(mult = c(0, 0.08)), labels = scales::comma) +
+          scale_fill_manual(
+            values = palette_land,
+            labels = labels_land,
+            drop = TRUE
+          ) +
+          labs(
+            title = "Feed-Related Land Use",
+            subtitle = subtitle_txt,
+            x = unit_title
+          )
+      )
+    }
+  }
+
   # =================================================================
   # UNIVERSAL PLOT (all other functions)
   # =================================================================
@@ -197,12 +252,9 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
   clean_title <- gsub("_", " ", main_var)
   palette <- if (grepl("NE|GE|ME", main_var, ignore.case = TRUE)) "inferno" else "mako"
 
-  # Sort so the largest bar sits on top
   df_agg <- df_agg[order(df_agg[[main_var]]), ]
   df_agg$plot_label <- factor(df_agg$plot_label, levels = df_agg$plot_label)
 
-  # Continuous fill: longer bars get a more intense color. Rounded bars
-  # via ggchicklet when available, for a softer "pill" look.
   p <- ggplot(df_agg, aes(x = .data[[main_var]], y = plot_label, fill = .data[[main_var]])) +
     rounded_col(show.legend = FALSE, width = 0.6) +
     geom_text(
