@@ -42,19 +42,6 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
   })
 
   # =================================================================
-  # ROUNDED BARS HELPER
-  # =================================================================
-  has_chicklet <- requireNamespace("ggchicklet", quietly = TRUE)
-
-  rounded_col <- function(..., radius = grid::unit(4, "pt")) {
-    if (has_chicklet) {
-      ggchicklet::geom_chicklet(..., radius = radius)
-    } else {
-      ggplot2::geom_col(...)
-    }
-  }
-
-  # =================================================================
   # VISUAL THEME
   # =================================================================
   bg_color     <- "#FFFFFF"
@@ -256,7 +243,7 @@ plot_herdr_results <- function(df, group_cols = c("animal_tag", "region", "subre
   df_agg$plot_label <- factor(df_agg$plot_label, levels = df_agg$plot_label)
 
   p <- ggplot(df_agg, aes(x = .data[[main_var]], y = plot_label, fill = .data[[main_var]])) +
-    rounded_col(show.legend = FALSE, width = 0.6) +
+    geom_col(show.legend = FALSE, width = 0.6) +
     geom_text(
       aes(label = fmt_num(.data[[main_var]])),
       hjust = -0.18, size = 4, fontface = "bold", color = text_mid

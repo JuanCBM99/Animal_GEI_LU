@@ -1,5 +1,9 @@
 # Generated to satisfy R CMD check - herdr global variables
-#' @importFrom utils globalVariables
+#' @importFrom utils globalVariables download.file tail
+#' @importFrom bslib bs_theme
+#' @importFrom rhandsontable rHandsontableOutput
+#' @importFrom shinycssloaders withSpinner
+#' @importFrom zip zip
 NULL
 
 if(getRversion() >= "2.15.1") {
@@ -16,7 +20,7 @@ if(getRversion() >= "2.15.1") {
     "cfi", "cfi_value", "ca", "ca_value", "c_pregnancy", "c_value", "pr",
     "C_preg_factor", "REM", "REG", "de_safe", "de_percent", "frac_fat_pct",
     "frac_protein_pct", "egg_mass_g_day", "cfi_maintenance", "W_mean",
-    "W_metabolic", "alpha",
+    "W_metabolic", "alpha", "c_pregnancy_cattle", "pr_sheep_goat", "pregnancy_rate",
 
     # --- Nutrition and Intake (DMI) ---
     "GE_MJday", "GE_feed_kcal_kg", "DE_pct", "CP_pct", "NDF_pct", "ASH_pct",
@@ -74,11 +78,19 @@ if(getRversion() >= "2.15.1") {
     "Area", "Item", "Year", "Value", "yield_name", "agribalyse_name", "avg",
     "dm_yield", "ha_per_kg", "economic_allocation", "share_factor",
     "ha_kg_allocated", "annual_cons_kg", "land_use_m2", "total_land_use_m2",
-    "total",
+    "total", "Element", "Yield", "country_of_origin", "custom_yield_kg_ha",
+    "land_type", "Reporter Countries", "Partner Countries", "Total_Import",
+    "Production", "Total_Export", "Apparent_Consumption", "Self_Sufficiency_Ratio",
+    "Top_Partner", "Calculated_Origin", "Area Code", "DM_pct",
+    "fallback_yield", "used_fallback", "raw_yield", "land_use_per_animal_m2",
 
     # --- Impacts and Summary (CO2eq) ---
     "CH4_enteric_Gg", "CH4_manure_Gg", "N2O_direct_Gg", "N2O_vol_Gg",
     "N2O_lea_Gg", "CO2eq_enteric", "CO2eq_manure", "CO2eq_N2O",
-    "CO2eq_Total_Gg", "Land_m2"
+    "CO2eq_Total_Gg", "Land_m2",
+
+    # --- Plotting and Graphics ---
+    "plot_label", "Gg_CO2e", "Emission_Source", "Percentage", "Nutrient",
+    "Land_Val", "tail", "download.file"
   ))
 }

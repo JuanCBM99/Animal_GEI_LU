@@ -54,8 +54,7 @@ Suggests:
     testthat (>= 3.0.0),
     pkgdown,
     withr,
-    knitr,
-    ggchicklet,
+    knitr
 VignetteBuilder: 
      knitr
 Config/testthat/edition: 3

@@ -5,29 +5,59 @@
 #' @param saveoutput If TRUE (default) the results are saved in the output folder.
 #' @param farm_country Character. The country of the farm/study (e.g., "Spain"). Default is "Spain".
 #' @param year Numeric. The reference year for FAO trade data calculation if origins are missing. Default is 2022.
+#' @param max_trace_hops Numeric. When an ingredient's country of origin has to be inferred from
+#'   trade data, this caps how many countries the algorithm will follow through re-export hubs. Default is 4.
+#' @param ssr_threshold Numeric. Self-Sufficiency Ratio (Production / Apparent Consumption)
+#'   above which a country is considered a genuine producer. Default is 0.70.
 #' @export
 calculate_land_use <- function(automatic_cycle = FALSE,
                                saveoutput = TRUE,
                                farm_country = "Spain",
-                               year = 2022) {
+                               year = 2024,
+                               max_trace_hops = 4,
+                               ssr_threshold = 0.70) {
 
   message("\U0001f7e2 Calculating land use...")
 
   year_col <- paste0("Y", year)
 
+  # FAOSTAT uses Area Codes >= 5000 for regional and other aggregate areas.
+  country_area_code_max <- 5000
+
   # --- 1. Load reference data ---
-  fao_raw <- arrow::open_dataset("user_data/fao_crops.parquet") %>%
-    dplyr::filter(Element == "Yield") %>%
+  fao_ds <- arrow::open_dataset("user_data/fao_crops.parquet")
+  fao_filtered <- dplyr::filter(fao_ds, Element == "Yield")
+  if ("Area Code" %in% names(fao_ds)) {
+    fao_filtered <- dplyr::filter(fao_filtered, `Area Code` < country_area_code_max)
+  }
+  fao_raw <- fao_filtered %>%
     dplyr::select(Area, Item, dplyr::all_of(year_col)) %>%
     dplyr::collect() %>%
     dplyr::rename(Value = dplyr::all_of(year_col)) %>%
     dplyr::mutate(Year = as.numeric(year))
 
+  # Assuming forages might use the same code structure; if not, you can remove the filter here.
   forage_raw <- arrow::read_parquet("user_data/fao_forages.parquet") %>%
     dplyr::rename(Value = Yield) %>%
     dplyr::mutate(Year = as.numeric(year))
 
   name_mapping <- readr::read_csv("user_data/mapping.csv", show_col_types = FALSE)
+
+  feed_chars_raw <- readr::read_csv("user_data/feed_characteristics.csv", show_col_types = FALSE)
+
+  if (!"land_type" %in% colnames(feed_chars_raw)) {
+    warning("\u26A0 Column 'land_type' not found in user_data/feed_characteristics.csv. Setting as NA.")
+    feed_chars_raw$land_type <- NA_character_
+  }
+
+  if (!"DM_pct" %in% colnames(feed_chars_raw)) {
+    warning("\u26A0 Column 'DM_pct' not found in user_data/feed_characteristics.csv. Assuming 100%.")
+    feed_chars_raw$DM_pct <- 100
+  }
+
+  feed_chars <- feed_chars_raw %>%
+    dplyr::select(ingredient, land_type, DM_pct) %>%
+    dplyr::distinct(ingredient, .keep_all = TRUE)
 
   # --- 2. Process yields by country ---
   yields_combined <- dplyr::bind_rows(
@@ -39,7 +69,7 @@ calculate_land_use <- function(automatic_cycle = FALSE,
 
   fao_yields <- name_mapping %>%
     dplyr::filter(!is.na(yield_name)) %>%
-    dplyr::inner_join(yields_combined, by = c("yield_name" = "Item")) %>%
+    dplyr::inner_join(yields_combined, by = c("yield_name" = "Item"), relationship = "many-to-many") %>%
     dplyr::transmute(
       ingredient,
       country_of_origin = Area,
@@ -87,56 +117,135 @@ calculate_land_use <- function(automatic_cycle = FALSE,
     }
     # nocov end
 
-    message(paste0("\u23f3 Missing countries of origin found. Computing dynamic FAO background data for ", farm_country, " (", year, ")..."))
+    message(paste0("\u23f3 Missing countries of origin found. Tracing real origin (beyond re-export hubs) for ", farm_country, " (", year, ")..."))
 
     fao_items <- unique(stats::na.omit(name_mapping$yield_name))
 
-    clean_prod <- arrow::open_dataset("user_data/fao_crops.parquet") %>%
-      dplyr::filter(Area == farm_country, Item %in% fao_items, Element == "Production") %>%
-      dplyr::select(Item, dplyr::all_of(year_col)) %>%
+    # --- 3a. Load global production & trade tables ONCE ---
+    global_prod_ds <- arrow::open_dataset("user_data/fao_crops.parquet")
+    global_prod_filtered <- dplyr::filter(
+      global_prod_ds,
+      Item %in% fao_items,
+      Element == "Production"
+    )
+    if ("Area Code" %in% names(global_prod_ds)) {
+      global_prod_filtered <- dplyr::filter(global_prod_filtered, `Area Code` < country_area_code_max)
+    }
+    global_prod <- global_prod_filtered %>%
+      dplyr::select(Area, Item, dplyr::all_of(year_col)) %>%
       dplyr::collect() %>%
-      dplyr::rename(Value = dplyr::all_of(year_col)) %>%
-      dplyr::group_by(Item) %>%
-      dplyr::summarise(Production = sum(Value, na.rm = TRUE), .groups = "drop")
+      dplyr::rename(Production = dplyr::all_of(year_col)) %>%
+      dplyr::group_by(Area, Item) %>%
+      dplyr::summarise(Production = sum(Production, na.rm = TRUE), .groups = "drop")
 
-    df_trade <- arrow::open_dataset(path_parquet_trade) %>%
+    global_trade <- arrow::open_dataset(path_parquet_trade) %>%
       dplyr::select(`Reporter Countries`, `Partner Countries`, Item, Element, dplyr::all_of(year_col)) %>%
-      dplyr::filter(`Reporter Countries` == farm_country, Item %in% fao_items) %>%
+      dplyr::filter(Item %in% fao_items) %>%
       dplyr::collect() %>%
       dplyr::rename(Value = dplyr::all_of(year_col)) %>%
       dplyr::filter(!is.na(Value))
 
-    clean_exp <- df_trade %>%
+    global_exp <- global_trade %>%
       dplyr::filter(Element == "Export quantity") %>%
-      dplyr::group_by(Item) %>%
+      dplyr::group_by(`Reporter Countries`, Item) %>%
       dplyr::summarise(Total_Export = sum(Value, na.rm = TRUE), .groups = "drop")
 
-    clean_imp <- df_trade %>%
+    global_imp <- global_trade %>%
       dplyr::filter(Element == "Import quantity") %>%
-      dplyr::group_by(Item) %>%
+      dplyr::group_by(`Reporter Countries`, Item) %>%
       dplyr::mutate(Total_Import = sum(Value, na.rm = TRUE)) %>%
       dplyr::arrange(dplyr::desc(Value)) %>%
       dplyr::slice(1) %>%
       dplyr::ungroup() %>%
-      dplyr::select(Item, Top_Partner = `Partner Countries`, Total_Import)
+      dplyr::select(`Reporter Countries`, Item, Top_Partner = `Partner Countries`, Total_Import)
 
-    fao_dictionary <- clean_prod %>%
-      dplyr::full_join(clean_imp, by = "Item") %>%
-      dplyr::full_join(clean_exp, by = "Item") %>%
+    chain_table <- global_prod %>%
+      dplyr::rename(`Reporter Countries` = Area) %>%
+      dplyr::full_join(global_imp, by = c("Reporter Countries", "Item")) %>%
+      dplyr::full_join(global_exp, by = c("Reporter Countries", "Item")) %>%
       dplyr::mutate(dplyr::across(c(Production, Total_Import, Total_Export), ~ tidyr::replace_na(., 0))) %>%
       dplyr::mutate(
-        Apparent_Consumption = Production + Total_Import - Total_Export,
-        Apparent_Consumption = ifelse(Apparent_Consumption <= 0, 1, Apparent_Consumption),
-        Self_Sufficiency_Ratio = Production / Apparent_Consumption,
-        Calculated_Origin = ifelse(Self_Sufficiency_Ratio >= 0.70, farm_country, Top_Partner)
+        Apparent_Consumption   = Production + Total_Import - Total_Export,
+        Apparent_Consumption   = ifelse(Apparent_Consumption <= 0, 1, Apparent_Consumption),
+        Self_Sufficiency_Ratio = Production / Apparent_Consumption
+      )
+
+    # --- 3b. Bounded recursive traceback ---
+    trace_origin <- function(item, start_country, chain_table,
+                             max_hops = max_trace_hops, threshold = ssr_threshold) {
+
+      current <- start_country
+      visited <- character(0)
+
+      for (hop in seq_len(max_hops)) {
+        visited <- c(visited, current)
+
+        row <- chain_table[chain_table$`Reporter Countries` == current & chain_table$Item == item, ]
+
+        if (nrow(row) == 0 || is.na(row$Self_Sufficiency_Ratio[1])) {
+          return(NA_character_)
+        }
+        if (row$Self_Sufficiency_Ratio[1] >= threshold) {
+          return(current)
+        }
+
+        next_country <- row$Top_Partner[1]
+
+        if (is.na(next_country) || next_country %in% visited) {
+          return(NA_character_)
+        }
+
+        current <- next_country
+      }
+
+      NA_character_
+    }
+
+    resolved_origin <- purrr::map_chr(fao_items, ~ trace_origin(.x, farm_country, chain_table))
+    names(resolved_origin) <- fao_items
+
+    # --- 3c. Fallback for unresolved items ---
+    fallback_yields <- purrr::map_dfr(fao_items, function(it) {
+      top_producers <- global_prod %>%
+        dplyr::filter(Item == it, Production > 0) %>%
+        dplyr::arrange(dplyr::desc(Production)) %>%
+        dplyr::slice_head(n = 3)
+
+      if (nrow(top_producers) == 0) {
+        return(tibble::tibble(Item = it, fallback_yield = NA_real_))
+      }
+
+      weighted_yield <- top_producers %>%
+        dplyr::inner_join(yields_combined, by = c("Area", "Item")) %>%
+        dplyr::summarise(fallback_yield = stats::weighted.mean(Value, w = Production, na.rm = TRUE)) %>%
+        dplyr::pull(fallback_yield)
+
+      if (length(weighted_yield) == 0 || is.nan(weighted_yield)) weighted_yield <- NA_real_
+
+      tibble::tibble(Item = it, fallback_yield = weighted_yield)
+    })
+
+    fao_dictionary <- tibble::tibble(
+      Item            = fao_items,
+      resolved_origin = unname(resolved_origin),
+      used_fallback   = is.na(resolved_origin)
+    ) %>%
+      dplyr::left_join(fallback_yields, by = "Item") %>%
+      dplyr::mutate(
+        Calculated_Origin = dplyr::case_when(
+          !used_fallback                        ~ resolved_origin,
+          used_fallback & !is.na(fallback_yield) ~ "Global Mix (Top 3 Producers)",
+          TRUE                                   ~ farm_country
+        ),
+        fallback_yield = dplyr::if_else(used_fallback, fallback_yield, NA_real_)
       ) %>%
-      dplyr::select(Item, Calculated_Origin)
+      dplyr::select(Item, Calculated_Origin, fallback_yield)
 
     final_dictionary <- name_mapping %>%
       dplyr::filter(!is.na(yield_name)) %>%
       dplyr::left_join(fao_dictionary, by = c("yield_name" = "Item")) %>%
       dplyr::mutate(Calculated_Origin = tidyr::replace_na(Calculated_Origin, farm_country)) %>%
-      dplyr::select(ingredient, Calculated_Origin)
+      dplyr::select(ingredient, Calculated_Origin, fallback_yield)
 
     diet_ingredients <- diet_ingredients_raw %>%
       dplyr::left_join(final_dictionary, by = "ingredient") %>%
@@ -145,7 +254,8 @@ calculate_land_use <- function(automatic_cycle = FALSE,
       ) %>%
       dplyr::select(-Calculated_Origin)
   } else {
-    diet_ingredients <- diet_ingredients_raw
+    diet_ingredients <- diet_ingredients_raw %>%
+      dplyr::mutate(fallback_yield = NA_real_)
   }
 
   population_df <- suppressMessages(calculate_population(automatic_cycle = automatic_cycle, saveoutput = FALSE)) %>%
@@ -166,19 +276,38 @@ calculate_land_use <- function(automatic_cycle = FALSE,
     dplyr::inner_join(diet_profiles, by = c("region", "subregion", "class_flex", "diet_tag")) %>%
     dplyr::inner_join(diet_ingredients, by = c("diet_tag", "region", "subregion", "class_flex")) %>%
     dplyr::left_join(fao_yields, by = c("ingredient", "country_of_origin")) %>%
+    dplyr::left_join(feed_chars, by = "ingredient") %>%
     dplyr::mutate(
-      dm_yield = dplyr::coalesce(custom_yield_kg_ha, dm_yield),
+      raw_yield = dplyr::case_when(
+        land_type %in% c("none", "no_land")      ~ 0,
+        !is.na(custom_yield_kg_ha)                ~ custom_yield_kg_ha,
+        is.na(dm_yield) & !is.na(fallback_yield)  ~ fallback_yield,
+        TRUE                                       ~ dm_yield
+      ),
+      dm_yield = dplyr::if_else(
+        is.na(custom_yield_kg_ha) & raw_yield > 0,
+        raw_yield * (DM_pct / 100),
+        raw_yield
+      ),
       ha_per_kg = dplyr::if_else(dm_yield > 0, 1 / dm_yield, 0)
     )
 
-  missing_yields <- results %>% dplyr::filter(is.na(dm_yield)) %>% dplyr::select(ingredient, country_of_origin) %>% dplyr::distinct()
+  missing_yields <- results %>%
+    dplyr::filter(is.na(dm_yield)) %>%
+    dplyr::select(ingredient, country_of_origin) %>%
+    dplyr::distinct()
+
   if (nrow(missing_yields) > 0) {
     warning("\u26A0 Missing yield for: ", paste0(missing_yields$ingredient, "(", missing_yields$country_of_origin, ")", collapse = ", "))
   }
 
   results <- results %>%
     dplyr::mutate(
-      ha_kg_allocated = dplyr::coalesce(ha_per_kg, 0) * dplyr::coalesce(economic_allocation, 1),
+      ha_kg_allocated = dplyr::if_else(
+        land_type %in% c("none", "no_land"),
+        0,
+        dplyr::coalesce(ha_per_kg, 0) * dplyr::coalesce(economic_allocation, 1)
+      ),
       share_factor = dplyr::case_when(
         ingredient_type == "forage"        ~ forage_share / 100,
         ingredient_type == "concentrate"   ~ concentrate_share / 100,
@@ -191,9 +320,14 @@ calculate_land_use <- function(automatic_cycle = FALSE,
     ) %>%
     dplyr::left_join(population_df, by = c("region", "subregion", "animal_tag", "class_flex")) %>%
     tidyr::drop_na(animal_tag) %>%
-    dplyr::group_by(region, subregion, animal_tag, class_flex, ingredient, country_of_origin, animal_type, animal_subtype) %>%
+    dplyr::group_by(
+      region, subregion, animal_tag, class_flex,
+      ingredient, land_type, country_of_origin,
+      animal_type, animal_subtype
+    ) %>%
     dplyr::summarise(
       population = dplyr::first(population),
+      DM_pct = dplyr::first(DM_pct),
       dm_yield = dplyr::first(dm_yield),
       land_use_per_animal_m2 = sum(land_use_m2, na.rm = TRUE),
       total_land_use_m2 = sum(land_use_m2 * population, na.rm = TRUE),
