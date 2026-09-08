@@ -122,10 +122,12 @@ full, reusable setup.</p>
 <p>Before adding anything, search <code>feed_characteristics.csv</code>
 for the ingredient under a different name or spelling — herdr’s matching
 is exact and case-sensitive.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(herdr)</span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>feed_db <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"user_data/feed_characteristics.csv"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"brewer"</span>, feed_db<span class="sc">$</span>ingredient, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> feed_db[_, ]</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://juancbm99.github.io/herdr">herdr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">feed_db</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"user_data/feed_characteristics.csv"</span><span class="op">)</span></span>
+<span><span class="va">matches</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"brewer"</span>, <span class="va">feed_db</span><span class="op">$</span><span class="va">ingredient</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">feed_db</span><span class="op">[</span><span class="va">matches</span>, <span class="op">]</span></span></code></pre></div>
 <p>If nothing comes back, it’s genuinely new — continue to Step 1.</p>
 <hr>
 </div>
@@ -152,53 +154,130 @@ column:</p>
 </colgroup>
 <thead><tr class="header">
 <th align="left">ingredient</th>
-<th align="left">feed_category</th>
+<th align="left">ingredient_type</th>
+<th align="left">land_type</th>
 <th align="right">DM_pct</th>
 <th align="right">ASH_pct</th>
 <th align="right">CP_pct</th>
 <th align="right">EE_pct</th>
 <th align="right">NDF_pct</th>
 <th align="right">DE_pct</th>
+<th align="left">swine_DE_kcal_kg</th>
 <th align="right">GE_feed_kcal_kg</th>
-<th align="right">swine_DE_kcal_kg</th>
-<th align="right">swine_ME_kcal_kg</th>
-<th align="right">poultry_ME_kcal_kg</th>
+<th align="right">source_DE</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left"><code>brewers_grains_wet</code></td>
-<td align="left"><code>by_product</code></td>
+<td align="left"><code>concentrate</code></td>
+<td align="left"><code>cropland</code></td>
 <td align="right">24.0</td>
 <td align="right">3.8</td>
 <td align="right">25.5</td>
 <td align="right">8.0</td>
 <td align="right">46.0</td>
 <td align="right">68.0</td>
+<td align="left"><code>NA</code></td>
 <td align="right">4,566</td>
-<td align="right"><code>NA</code></td>
-<td align="right"><code>NA</code></td>
-<td align="right"><code>NA</code></td>
+<td align="right"><code>Feedipedia</code></td>
 </tr></tbody>
 </table>
-<p>A few notes on where these numbers come from:</p>
+<p><em>(Note: table truncated for display purposes. Make sure all
+monogastric energy columns are also included in your actual
+file.)</em></p>
+<p>A few notes on where these numbers come from and how herdr uses
+them:</p>
 <ul>
-<li><p>Use <strong>lowercase with underscores</strong> for
+<li>Use <strong>lowercase with underscores</strong> for
 <code>ingredient</code> (<code>brewers_grains_wet</code>, not
 <code>Brewers Grains Wet</code>) — this is the identifier every other
-file will reference.</p></li>
-<li><p><code>DM_pct</code>, <code>ASH_pct</code>, <code>CP_pct</code>,
-<code>EE_pct</code>, and <code>NDF_pct</code> should come from a lab
-analysis or a recognized feed table (FEDNA is herdr’s default source for
-most of its bundled ingredients; Feedipedia is a good alternative for
-by-products like this one).</p></li>
+file will reference.</li>
 <li>
-<p>If you don’t have a directly measured
-<code>GE_feed_kcal_kg</code>, calculate it with the NRC (1998) Ewan
-equation already used throughout herdr’s own database:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>E</mi><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">kcal/kg DM</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>4140</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>56</mn><mo>×</mo><mi>E</mi><mi>E</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>15</mn><mo>×</mo><mi>C</mi><mi>P</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>44</mn><mo>×</mo><mi>A</mi><mi>S</mi><mi>H</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \times ASH\%)</annotation></semantics></math></p>
+<strong><code>land_type</code> (Agroecological
+Classification)</strong>: This column is required by
+<code><a href="../reference/calculate_land_use.html">calculate_land_use()</a></code> to classify the agricultural
+competition of the feed:
+<ul>
+<li>
+<code>cropland</code>: Feed grown on arable land suitable for human
+food crops (cereal grains, oilseeds, pulses, and agro-industrial
+by-products such as brewers grains).</li>
+<li>
+<code>grassland_convertible</code>: Productive grasslands with high
+agronomic potential that could be converted to arable cropland.</li>
+<li>
+<code>grassland_unconvertible</code>: Native pastures, steep slopes,
+mountain, or marginal rangelands unsuitable for cultivation.</li>
+<li>
+<code>none</code> (or <code>no_land</code>): Inputs requiring zero
+direct agricultural land (e.g. synthetic amino acids, urea, minerals,
+vitamins, water, or technological additives). When set to
+<code>none</code>, <code><a href="../reference/calculate_land_use.html">calculate_land_use()</a></code> immediately assigns
+0 land use (<code>ha_kg_allocated = 0</code>), bypassing all yield
+queries. <em>(Note: if <code>land_type</code> is omitted from the file,
+herdr issues a warning and defaults to <code>NA</code>.)</em>
 </li>
-<li><p>Leave the swine/poultry energy columns as <code>NA</code> if the
+</ul>
+</li>
+<li>
+<strong><code>DM_pct</code> (Dry Matter %)</strong>: Beyond
+nutritional calculations, <code><a href="../reference/calculate_land_use.html">calculate_land_use()</a></code> directly
+uses <code>DM_pct</code> to convert raw FAOSTAT yields to dry matter
+yield
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>m</mi><mi>_</mi><mi>y</mi><mi>i</mi><mi>e</mi><mi>l</mi><mi>d</mi><mo>=</mo><mi>r</mi><mi>a</mi><mi>w</mi><mi>_</mi><mi>y</mi><mi>i</mi><mi>e</mi><mi>l</mi><mi>d</mi><mo>×</mo><mfrac><mrow><mi>D</mi><mi>M</mi><mi>_</mi><mi>p</mi><mi>c</mi><mi>t</mi></mrow><mn>100</mn></mfrac></mrow><annotation encoding="application/x-tex">dm\_yield = raw\_yield \times \frac{DM\_pct}{100}</annotation></semantics></math>).
+If <code>DM_pct</code> is missing, herdr issues a warning and assumes
+100%.</li>
+<li>
+<code>ASH_pct</code>, <code>CP_pct</code>, <code>EE_pct</code>, and
+<code>NDF_pct</code> should come from a lab analysis or a recognized
+feed table (FEDNA is herdr’s default source for most of its bundled
+ingredients; Feedipedia is a good alternative for by-products like this
+one).</li>
+<li>
+<strong><code>source_DE</code></strong>: this column documents the
+origin of the Digestible Energy (<code>DE_pct</code>) value.</li>
+<li>
+<strong>Forages</strong>: forage ingredients often lack standard
+<code>DE_pct</code> values. Following the reference methodology, Energy
+Digestibility
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">Ed</annotation></semantics></math>,
+equivalent to <code>DE_pct</code>) is derived from Organic Matter
+digestibility
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">OMd</annotation></semantics></math>).
+First,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">OMd</annotation></semantics></math>
+is estimated from Acid Detergent Fiber
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>D</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">ADF</annotation></semantics></math>)
+content:</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi><mo>=</mo><mn>74.13</mn><mo>−</mo><mn>1.364</mn><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mi>D</mi><mi>F</mi><mo>−</mo><mn>29.83</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">OMd = 74.13 - 1.364 \times (ADF - 29.83)</annotation></semantics></math></p>
+<p>Then, Energy Digestibility
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">Ed</annotation></semantics></math>)
+is calculated using the full regression equation, incorporating Crude
+Protein
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">CP</annotation></semantics></math>),
+Ether Extract
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>E</mi></mrow><annotation encoding="application/x-tex">EE</annotation></semantics></math>),
+Neutral Detergent Fiber
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>D</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">NDF</annotation></semantics></math>),
+and Ash:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi><mo>=</mo><mi>O</mi><mi>M</mi><mi>d</mi><mo>−</mo><mn>3.94</mn><mo>+</mo><mn>0.104</mn><mo>×</mo><mi>C</mi><mi>P</mi><mo>+</mo><mn>0.149</mn><mo>×</mo><mi>E</mi><mi>E</mi><mo>+</mo><mn>0.022</mn><mo>×</mo><mi>N</mi><mi>D</mi><mi>F</mi><mo>−</mo><mn>0.244</mn><mo>×</mo><mi>A</mi><mi>s</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">Ed = OMd - 3.94 + 0.104 \times CP + 0.149 \times EE + 0.022 \times NDF - 0.244 \times Ash</annotation></semantics></math></p>
+<p><em>(Note: the methodology also provides alternative reduced
+equations for cases where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>D</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">NDF</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>s</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">Ash</annotation></semantics></math>
+values are missing, but the full equation above is preferred for herdr’s
+database.)</em></p>
+<ul>
+<li>If you don’t have a directly measured <code>GE_feed_kcal_kg</code>,
+calculate it with the NRC (1989) Ewan equation already used throughout
+herdr’s own database:</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>E</mi><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">kcal/kg DM</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>4140</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>56</mn><mo>×</mo><mi>E</mi><mi>E</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>15</mn><mo>×</mo><mi>C</mi><mi>P</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>44</mn><mo>×</mo><mi>A</mi><mi>S</mi><mi>H</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \times ASH\%)</annotation></semantics></math></p>
+<ul>
+<li>Leave the swine/poultry energy columns as <code>NA</code> if the
 ingredient is only fed to ruminants (as here) — herdr only needs them
-for monogastric diets.</p></li>
+for monogastric diets.</li>
 </ul>
 <p>See the <a href="Technical_reference.html#feed_characteristics.csv--nutritional-values">Technical
 Reference</a> vignette for the full column definitions.</p>
@@ -247,6 +326,11 @@ here means 15% of the barley’s land-use footprint is attributed to the
 grains, and the rest to the beer itself. For a primary crop with no
 co-products (e.g. plain <code>barley_grain</code> used directly as
 feed), this would simply be <code>1.0</code>.</p>
+<p>In <code><a href="../reference/calculate_land_use.html">calculate_land_use()</a></code>, this factor directly scales the
+land requirement:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">ha_kg_allocated</mtext><mo>=</mo><mtext mathvariant="normal">ha_per_kg</mtext><mo>×</mo><mtext mathvariant="normal">economic_allocation</mtext></mrow><annotation encoding="application/x-tex">\text{ha\_kg\_allocated} = \text{ha\_per\_kg} \times \text{economic\_allocation}</annotation></semantics></math></p>
+<p>If left blank or <code>NA</code>, herdr defaults
+<code>economic_allocation</code> to <code>1.0</code>.</p>
 </div>
 <div class="section level4">
 <h4 id="yield_name">
@@ -256,10 +340,13 @@ feed), this would simply be <code>1.0</code>.</p>
 already present in herdr’s bundled yield databases —
 <code>fao_crops.parquet</code> for arable crops or
 <code>fao_forages.parquet</code> for grasses and silages — since that’s
-where the actual kg/ha figure is pulled from. Don’t guess or type a name
-from the live FAOSTAT website: the local <code>.parquet</code> files are
-what the model actually reads, and their naming doesn’t always match
-FAOSTAT’s current item names exactly. Check them directly instead:</p>
+where the actual kg/ha figure is pulled from. Herdr combines both
+datasets and filters out aggregate areas (using
+<code>Area Code &lt; 5000</code> to keep only genuine countries).</p>
+<p>Don’t guess or type a name from the live FAOSTAT website: the local
+<code>.parquet</code> files are what the model actually reads, and their
+naming doesn’t always match FAOSTAT’s current item names exactly. Check
+them directly instead:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/apache/arrow/" class="external-link">arrow</a></span><span class="op">)</span></span>
 <span></span>
@@ -280,45 +367,80 @@ or skip <code>yield_name</code> resolution entirely by supplying
 like any bundled one. Add it to a diet as usual:</p>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="14%">
-<col width="14%">
-<col width="14%">
-<col width="14%">
-<col width="14%">
-<col width="14%">
-<col width="14%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
+<col width="11%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">diet_tag</th>
 <th align="left">region</th>
-<th align="left">feed_category</th>
+<th align="left">subregion</th>
+<th align="left">class_flex</th>
 <th align="left">ingredient</th>
-<th align="right">percentage</th>
+<th align="right">ingredient_share</th>
+<th align="left">ingredient_type</th>
 <th align="left">country_of_origin</th>
 <th align="right">custom_yield_kg_ha</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>spain</code></td>
-<td align="left"><code>concentrate</code></td>
+<td align="left"><code>all</code></td>
+<td align="left"><code>all</code></td>
 <td align="left"><code>brewers_grains_wet</code></td>
 <td align="right">15</td>
+<td align="left"><code>concentrate</code></td>
 <td align="left"><code>spain</code></td>
 <td align="right"><code>NA</code></td>
 </tr></tbody>
 </table>
-<p>With <code>custom_yield_kg_ha</code> left as <code>NA</code>, herdr
-resolves the land-use footprint automatically: it looks up
-<code>barley</code> in <code>fao_crops.parquet</code> for the given
-<code>country_of_origin</code>, applies the
-<code>economic_allocation</code> of <code>0.15</code> from
-<code>mapping.csv</code>, and uses the nutritional values from
-<code>feed_characteristics.csv</code> for the GHG side of the
-assessment.</p>
-<p>If you’d rather bypass the yield lookup — say, you know the specific
-brewery’s sourcing — just fill in <code>custom_yield_kg_ha</code>
-directly and skip needing a valid <code>yield_name</code>
-altogether.</p>
+<p>Keep these practical rules in mind when entering ingredients:</p>
+<ul>
+<li><p><strong><code>ingredient_type</code></strong>: Must match one of
+four exact categories: <code>"forage"</code>,
+<code>"concentrate"</code>, <code>"milk"</code>, or
+<code>"milk_replacer"</code>. This connects the ingredient to the
+corresponding category share in <code>diet_profiles.csv</code>. If
+misspelled or unrecognized, herdr sets the intake share factor to 0,
+resulting in zero consumption and zero land use.</p></li>
+<li>
+<p><strong><code>ingredient_share</code> Validation</strong>: Within
+any given diet cohort and <code>ingredient_type</code>, the sum of
+<code>ingredient_share</code> values must total 100%
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>±</mi><mn>0.1</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\pm 0.1\%</annotation></semantics></math>).
+Herdr validates this before computing and throws a warning if shares do
+not total 100%:</p>
+<pre><code>⚠️ Ingredient shares do not sum to 100% in: diet_dairy_mature</code></pre>
+</li>
+<li>
+<p><strong>Country of Origin &amp; Yield Resolution</strong>:</p>
+<ul>
+<li>
+<strong>Explicit country</strong> (e.g. <code>"spain"</code>): herdr
+resolves yields for that specific country from
+<code>fao_crops.parquet</code> / <code>fao_forages.parquet</code>.</li>
+<li>
+<strong>Bypassing FAO lookups
+(<code>custom_yield_kg_ha</code>)</strong>: If you already know the
+specific crop yield (e.g. from local farm records), enter it in
+<code>custom_yield_kg_ha</code> (in kg DM/ha). Herdr will use this
+number directly and label the origin as <code>"Custom Data"</code>.</li>
+<li>
+<strong>Leaving it blank or <code>NA</code></strong>: If
+<code>country_of_origin</code> is <code>NA</code>, herdr automatically
+estimates the genuine producer country through dynamic international
+trade flows (see the <a href="land_use.html#feed-origin--dynamic-trade-allocation">Land Use
+Methodology</a> vignette for how trade flows and re-export hubs are
+traced).</li>
+</ul>
+</li>
+</ul>
 <hr>
 </div>
 <div class="section level3">
@@ -345,14 +467,56 @@ casing, typo)</td>
 <code>feed_characteristics.csv</code>, don’t retype it.</td>
 </tr>
 <tr class="even">
+<td align="left">Warning: <code>Column 'land_type' not found</code>
+</td>
+<td align="left">
+<code>feed_characteristics.csv</code> is missing the
+<code>land_type</code> column</td>
+<td align="left">Add <code>land_type</code> and specify
+<code>cropland</code>, <code>grassland_convertible</code>,
+<code>grassland_unconvertible</code>, or <code>none</code>.</td>
+</tr>
+<tr class="odd">
 <td align="left">Land-use result of zero for this ingredient</td>
 <td align="left">
-<code>yield_name</code> in <code>mapping.csv</code>
-doesn’t match any <code>Item</code> in the <code>.parquet</code> files,
-or <code>economic_allocation</code> was left blank</td>
-<td align="left">Re-check the exact <code>Item</code> name with the
-<code><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">arrow::read_parquet()</a></code> lookup above; make sure
-<code>economic_allocation</code> is a number between 0 and 1.</td>
+<code>land_type</code> was set to
+<code>none</code>/<code>no_land</code>, <code>yield_name</code> doesn’t
+match any <code>Item</code> in FAO data,
+<code>economic_allocation</code> is 0, or <code>ingredient_type</code>
+was misspelled</td>
+<td align="left">Check <code>land_type</code>; re-check the exact
+<code>Item</code> name with <code><a href="https://arrow.apache.org/docs/r/reference/read_parquet.html" class="external-link">arrow::read_parquet()</a></code>; verify
+<code>economic_allocation</code>; ensure <code>ingredient_type</code> is
+one of <code>forage</code>, <code>concentrate</code>, <code>milk</code>,
+<code>milk_replacer</code>.</td>
+</tr>
+<tr class="even">
+<td align="left">Warning:
+<code>Ingredient shares do not sum to 100%</code>
+</td>
+<td align="left">Values in <code>ingredient_share</code> within that
+diet cohort and <code>ingredient_type</code> do not total 100</td>
+<td align="left">Check <code>diet_ingredients.csv</code> and adjust
+shares so they sum to 100% for each category.</td>
+</tr>
+<tr class="odd">
+<td align="left">Warning: <code>Missing yield for: ...</code>
+</td>
+<td align="left">Country specified in <code>country_of_origin</code> has
+no recorded yield in FAO data for that year</td>
+<td align="left">Check the spelling of <code>Area</code> in
+<code>fao_crops.parquet</code>, leave <code>country_of_origin</code>
+blank to use trade tracing, or provide
+<code>custom_yield_kg_ha</code>.</td>
+</tr>
+<tr class="even">
+<td align="left">187 MB download begins unexpectedly</td>
+<td align="left">
+<code>country_of_origin</code> was left
+<code>NA</code>, triggering trade matrix download</td>
+<td align="left">Let the download finish once, or explicitly provide a
+country in <code>country_of_origin</code> / fill in
+<code>custom_yield_kg_ha</code>.</td>
 </tr>
 <tr class="odd">
 <td align="left">GHG values look off for the ingredient</td>
@@ -384,10 +548,9 @@ every project that needs the ingredient, or maintain one shared
 <a href="Technical_reference.html">Technical Reference</a> — full
 column-by-column definitions for every file touched here.</li>
 <li>
-<a href="land_use.html">Land Use Methodology</a> — how
-<code>yield_name</code> and <code>economic_allocation</code> feed into
-the land-use calculation, and the schema for adding new crops to
-<code>fao_crops.parquet</code> / <code>fao_forages.parquet</code>.</li>
+<a href="land_use.html">Land Use Methodology</a> — mathematical
+formulation of land occupation, agroecological land competition
+framework, and dynamic trade tracing.</li>
 <li>
 <a href="Workflow.html">General Workflow</a> — where this step fits
 into a full project setup.</li>

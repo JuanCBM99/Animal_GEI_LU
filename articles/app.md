@@ -133,7 +133,7 @@ calculate the impacts:
   export the final numerical assessment as a standard CSV report.
 - **Back up your session:** Navigate to **Step 4: Downloads** in the
   sidebar and click **Download Input Data (ZIP)**. This bundles all your
-  modified CSV tables into a compressed file. o resume your work, unzip
+  modified CSV tables into a compressed file. To resume your work, unzip
   this file and upload the CSVs using the upload button in Step 1.
 
 ------------------------------------------------------------------------

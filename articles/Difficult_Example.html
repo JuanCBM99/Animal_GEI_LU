@@ -232,10 +232,10 @@ stage.</p>
 <th align="left">region</th>
 <th align="left">subregion</th>
 <th align="left">class_flex</th>
-<th align="right">forage</th>
-<th align="right">concentrate</th>
-<th align="right">milk</th>
-<th align="right">milk_replacer</th>
+<th align="right">forage_share</th>
+<th align="right">concentrate_share</th>
+<th align="right">milk_share</th>
+<th align="right">milk_replacer_share</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -304,9 +304,9 @@ South/lactation profile:</p>
 <th align="left">region</th>
 <th align="left">subregion</th>
 <th align="left">class_flex</th>
-<th align="left">feed_category</th>
+<th align="left">ingredient_type</th>
 <th align="left">ingredient</th>
-<th align="right">percentage</th>
+<th align="right">ingredient_share</th>
 <th align="left">country_of_origin</th>
 <th align="right">custom_yield_kg_ha</th>
 </tr></thead>
@@ -364,32 +364,38 @@ a FAO/trade-based lookup.</p>
 (<code>ruminant_definitions.csv</code>)<a class="anchor" aria-label="anchor" href="#step-3-physiological-definitions-ruminant_definitions-csv"></a>
 </h3>
 <p>This is the most technical file — it determines energy requirements
-under IPCC Tier 2. Notice how <code>milk_yield</code> and
+under IPCC Tier 2. Notice how <code>milk_yield_kg_year</code> and
 <code>cfi</code> change between phases.</p>
 <table style="width:100%;" class="table">
 <colgroup>
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
-<col width="10%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
+<col width="7%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">animal_tag</th>
 <th align="left">region</th>
 <th align="left">subregion</th>
 <th align="left">class_flex</th>
+<th align="left">diet_tag</th>
 <th align="left">cfi</th>
 <th align="left">ca</th>
 <th align="left">c</th>
-<th align="right">milk_yield</th>
-<th align="right">fat_content</th>
-<th align="left">c_pregnancy</th>
+<th align="right">milk_yield_kg_year</th>
+<th align="right">fat_content_pct</th>
+<th align="left">c_pregnancy_cattle</th>
+<th align="left">animal_type</th>
+<th align="left">animal_subtype</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -397,48 +403,60 @@ under IPCC Tier 2. Notice how <code>milk_yield</code> and
 <td align="left"><code>spain</code></td>
 <td align="left"><code>north</code></td>
 <td align="left"><code>lactation_phase</code></td>
-<td align="left"><code>cattle_buffalo [lactating]</code></td>
+<td align="left"><code>diet_dairy_mature</code></td>
+<td align="left"><code>cattle_buffalo [lactating cows]</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">8,295</td>
 <td align="right">3.73</td>
 <td align="left"><code>cattle and buffalo</code></td>
+<td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 <tr class="even">
 <td align="left"><code>mature_dairy_cattle</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left"><code>north</code></td>
 <td align="left"><code>dry_phase</code></td>
+<td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>cattle/buffalo</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="left"><code>cattle and buffalo</code></td>
+<td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 <tr class="odd">
 <td align="left"><code>mature_dairy_cattle</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left"><code>south</code></td>
 <td align="left"><code>lactation_phase</code></td>
-<td align="left"><code>cattle_buffalo [lactating]</code></td>
+<td align="left"><code>diet_dairy_mature</code></td>
+<td align="left"><code>cattle_buffalo [lactating cows]</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">9,044</td>
 <td align="right">3.73</td>
 <td align="left"><code>cattle and buffalo</code></td>
+<td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 <tr class="even">
 <td align="left"><code>mature_dairy_cattle</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left"><code>south</code></td>
 <td align="left"><code>dry_phase</code></td>
+<td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>cattle/buffalo</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="left"><code>cattle and buffalo</code></td>
+<td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 </tbody>
 </table>
@@ -467,10 +485,10 @@ of body weight).</p>
 <th align="left">region</th>
 <th align="left">subregion</th>
 <th align="left">class_flex</th>
-<th align="right">adult_weight</th>
-<th align="right">productive_period</th>
-<th align="right">initial_weight</th>
-<th align="right">final_weight</th>
+<th align="right">adult_weight_kg</th>
+<th align="right">productive_period_days</th>
+<th align="right">initial_weight_kg</th>
+<th align="right">final_weight_kg</th>
 </tr></thead>
 <tbody>
 <tr class="odd">

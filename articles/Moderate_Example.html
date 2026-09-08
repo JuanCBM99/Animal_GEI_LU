@@ -191,14 +191,24 @@ profile and its ingredients are defined per subregion.</p>
 </h4>
 <p>The forage proportion is higher in the North (55%) than in the South
 (50%).</p>
-<table class="table">
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+<col width="14%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">diet_tag</th>
 <th align="left">region</th>
 <th align="left">subregion</th>
-<th align="right">forage</th>
-<th align="right">concentrate</th>
-<th align="right">milk</th>
+<th align="right">forage_share</th>
+<th align="right">concentrate_share</th>
+<th align="right">milk_share</th>
+<th align="right">milk_replacer_share</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -208,6 +218,7 @@ profile and its ingredients are defined per subregion.</p>
 <td align="right">55</td>
 <td align="right">45</td>
 <td align="right">0</td>
+<td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="left"><code>diet_dairy_mature</code></td>
@@ -216,6 +227,7 @@ profile and its ingredients are defined per subregion.</p>
 <td align="right">50</td>
 <td align="right">50</td>
 <td align="right">0</td>
+<td align="right">0</td>
 </tr>
 </tbody>
 </table>
@@ -223,8 +235,9 @@ profile and its ingredients are defined per subregion.</p>
 <div class="section level4">
 <h4 id="b--ingredient-breakdown-diet_ingredients-csv">B. Ingredient breakdown — <code>diet_ingredients.csv</code><a class="anchor" aria-label="anchor" href="#b--ingredient-breakdown-diet_ingredients-csv"></a>
 </h4>
-<p>Within each <code>feed_category</code>, <code>percentage</code> must
-sum to 100%. Here’s the concentrate portion for Spain South:</p>
+<p>Within each <code>ingredient_type</code>,
+<code>ingredient_share</code> must sum to 100%. Here’s the concentrate
+portion for Spain South:</p>
 <table class="table">
 <colgroup>
 <col width="12%">
@@ -240,9 +253,9 @@ sum to 100%. Here’s the concentrate portion for Spain South:</p>
 <th align="left">diet_tag</th>
 <th align="left">region</th>
 <th align="left">subregion</th>
-<th align="left">feed_category</th>
+<th align="left">ingredient_type</th>
 <th align="left">ingredient</th>
-<th align="right">percentage</th>
+<th align="right">ingredient_share</th>
 <th align="left">country_of_origin</th>
 <th align="right">custom_yield_kg_ha</th>
 </tr></thead>
@@ -299,21 +312,22 @@ FAO/trade-based yield — regardless of what
 <p>Open <code>ruminant_definitions.csv</code>. This file links your
 animal tags to the IPCC physiological equations — each of
 <code>cfi</code>, <code>ca</code>, <code>c</code>, and
-<code>c_pregnancy</code> is a separate lookup into
+<code>c_pregnancy_cattle</code> is a separate lookup into
 <code>ipcc_coefficients.csv</code>.</p>
 <table class="table">
 <colgroup>
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">animal_tag</th>
@@ -323,10 +337,11 @@ animal tags to the IPCC physiological equations — each of
 <th align="left">cfi</th>
 <th align="left">ca</th>
 <th align="left">c</th>
-<th align="right">milk_yield</th>
-<th align="right">fat_content</th>
-<th align="left">c_pregnancy</th>
+<th align="right">milk_yield_kg_year</th>
+<th align="right">fat_content_pct</th>
+<th align="left">c_pregnancy_cattle</th>
 <th align="left">animal_type</th>
+<th align="left">animal_subtype</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -334,26 +349,28 @@ animal tags to the IPCC physiological equations — each of
 <td align="left"><code>spain</code></td>
 <td align="left"><code>north</code></td>
 <td align="left"><code>diet_dairy_mature</code></td>
-<td align="left"><code>cattle_buffalo [lactating]</code></td>
+<td align="left"><code>cattle_buffalo [lactating cows]</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">8,295.0</td>
 <td align="right">3.73</td>
 <td align="left"><code>cattle and buffalo</code></td>
 <td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 <tr class="even">
 <td align="left"><code>mature_dairy_cattle</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left"><code>south</code></td>
 <td align="left"><code>diet_dairy_mature</code></td>
-<td align="left"><code>cattle_buffalo [lactating]</code></td>
+<td align="left"><code>cattle_buffalo [lactating cows]</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">9,044.0</td>
 <td align="right">3.73</td>
 <td align="left"><code>cattle and buffalo</code></td>
 <td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr>
 </tbody>
 </table>
@@ -379,10 +396,10 @@ intake (DMI) limits.</p>
 <th align="left">animal_tag</th>
 <th align="left">region</th>
 <th align="left">subregion</th>
-<th align="right">adult_weight</th>
-<th align="right">productive_period</th>
-<th align="right">initial_weight</th>
-<th align="right">final_weight</th>
+<th align="right">adult_weight_kg</th>
+<th align="right">productive_period_days</th>
+<th align="right">initial_weight_kg</th>
+<th align="right">final_weight_kg</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -416,17 +433,18 @@ splitting the <code>allocation</code> across rows — the sum per
 combination must equal 1.0.</p>
 <table class="table">
 <colgroup>
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
-<col width="9%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
+<col width="8%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">animal_tag</th>
@@ -439,6 +457,7 @@ combination must equal 1.0.</p>
 <th align="left">system_subclimate</th>
 <th align="left">climate_zone</th>
 <th align="left">climate_moisture</th>
+<th align="left">b_0</th>
 <th align="right">allocation</th>
 </tr></thead>
 <tbody>
@@ -453,6 +472,7 @@ combination must equal 1.0.</p>
 <td align="left"><code>temperate</code></td>
 <td align="left"><code>zone_moist</code></td>
 <td align="left"><code>wet</code></td>
+<td align="left"><code>dairy_cattle_high_productivity</code></td>
 <td align="right">0.0537</td>
 </tr>
 <tr class="even">
@@ -466,6 +486,7 @@ combination must equal 1.0.</p>
 <td align="left"><code>temperate</code></td>
 <td align="left"><code>zone_moist</code></td>
 <td align="left"><code>wet</code></td>
+<td align="left"><code>dairy_cattle_high_productivity</code></td>
 <td align="right">0.3432</td>
 </tr>
 <tr class="odd">
@@ -479,6 +500,7 @@ combination must equal 1.0.</p>
 <td align="left">—</td>
 <td align="left">—</td>
 <td align="left"><code>default</code></td>
+<td align="left"><code>dairy_cattle_high_productivity</code></td>
 <td align="right">0.3551</td>
 </tr>
 <tr class="even">
@@ -492,6 +514,7 @@ combination must equal 1.0.</p>
 <td align="left">—</td>
 <td align="left">—</td>
 <td align="left"><code>default</code></td>
+<td align="left"><code>dairy_cattle_high_productivity</code></td>
 <td align="right">0.3551</td>
 </tr>
 </tbody>

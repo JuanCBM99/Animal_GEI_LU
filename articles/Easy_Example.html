@@ -185,14 +185,22 @@ every required column is filled in.</p>
 <div class="section level4">
 <h4 id="b--define-the-profile-diet_profiles-csv">B. Define the profile — <code>diet_profiles.csv</code><a class="anchor" aria-label="anchor" href="#b--define-the-profile-diet_profiles-csv"></a>
 </h4>
-<table class="table">
+<table style="width:100%;" class="table">
+<colgroup>
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+<col width="16%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">diet_tag</th>
 <th align="left">region</th>
-<th align="right">forage</th>
-<th align="right">concentrate</th>
-<th align="right">milk</th>
-<th align="right">milk_replacer</th>
+<th align="right">forage_share</th>
+<th align="right">concentrate_share</th>
+<th align="right">milk_share</th>
+<th align="right">milk_replacer_share</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left"><code>diet_dairy_mature</code></td>
@@ -222,9 +230,9 @@ per ingredient.</p>
 <thead><tr class="header">
 <th align="left">diet_tag</th>
 <th align="left">region</th>
-<th align="left">feed_category</th>
+<th align="left">ingredient_type</th>
 <th align="left">ingredient</th>
-<th align="right">percentage</th>
+<th align="right">ingredient_share</th>
 <th align="left">country_of_origin</th>
 <th align="right">custom_yield_kg_ha</th>
 </tr></thead>
@@ -232,9 +240,9 @@ per ingredient.</p>
 <tr class="odd">
 <td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>spain</code></td>
-<td align="left">forage</td>
-<td align="left"><code>corn_silage</code></td>
-<td align="right">100</td>
+<td align="left">concentrate</td>
+<td align="left"><code>corn_national</code></td>
+<td align="right">44.85</td>
 <td align="left"><code>spain</code></td>
 <td align="right"><code>NA</code></td>
 </tr>
@@ -242,8 +250,8 @@ per ingredient.</p>
 <td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left">concentrate</td>
-<td align="left"><code>barley_grain</code></td>
-<td align="right">50</td>
+<td align="left"><code>soybean_meal_44_cp</code></td>
+<td align="right">17.12</td>
 <td align="left"><code>NA</code></td>
 <td align="right"><code>NA</code></td>
 </tr>
@@ -251,17 +259,17 @@ per ingredient.</p>
 <td align="left"><code>diet_dairy_mature</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left">concentrate</td>
-<td align="left"><code>soybean_meal</code></td>
-<td align="right">50</td>
+<td align="left"><code>rapeseed_meal_00_33_cp</code></td>
+<td align="right">28.71</td>
 <td align="left"><code>NA</code></td>
-<td align="right">5000</td>
+<td align="right">3200</td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p>✅ <strong>Percentages sum to 100% <em>within</em> each
-category</strong> — here, 50% barley + 50% soybean meal make up 100% of
-the concentrate portion.</p>
+<p>✅ <strong>Shares sum to 100% <em>within</em> each category</strong>
+— ensure all <code>ingredient_share</code> values within
+<code>concentrate</code> total 100%.</p>
 <p>🌍 <strong>Missing origins:</strong> leave
 <code>country_of_origin</code> as <code>NA</code> when you don’t know
 where a feed comes from. herdr resolves it automatically using FAO trade
@@ -269,10 +277,10 @@ data — see <a href="land_use.html">Land Use Methodology</a> for how.</p>
 <p>🎯 <strong>Overriding the yield:</strong>
 <code>custom_yield_kg_ha</code> lets you skip the FAO/trade lookup
 entirely for a given ingredient. If you already know the real yield for
-your farm or region — e.g. <code>5000</code> kg/ha — enter it here and
-herdr uses that value directly for the land-use calculation, ignoring
-<code>country_of_origin</code> and any FAO database lookup for that
-row.</p>
+your farm or region — e.g. <code>3200</code> kg DM/ha — enter it here
+and herdr uses that value directly for the land-use calculation,
+ignoring <code>country_of_origin</code> and any FAO database lookup for
+that row.</p>
 </blockquote>
 <hr>
 </div>
@@ -282,20 +290,22 @@ row.</p>
 </h3>
 <p>Open <code>ruminant_definitions.csv</code>. This file links your
 animal to the IPCC Tier 2 equations — each of <code>cfi</code>,
-<code>ca</code>, <code>c</code>, and <code>c_pregnancy</code> is a
-separate lookup into <code>ipcc_coefficients.csv</code>, so use the
+<code>ca</code>, <code>c</code>, and <code>c_pregnancy_cattle</code> is
+a separate lookup into <code>ipcc_coefficients.csv</code>, so use the
 <strong>exact description</strong> for each as it appears there.</p>
-<table style="width:100%;" class="table">
+<table class="table">
 <colgroup>
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
-<col width="11%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
+<col width="9%">
 </colgroup>
 <thead><tr class="header">
 <th align="left">animal_tag</th>
@@ -304,20 +314,24 @@ separate lookup into <code>ipcc_coefficients.csv</code>, so use the
 <th align="left">cfi</th>
 <th align="left">ca</th>
 <th align="left">c</th>
-<th align="right">milk_yield</th>
-<th align="right">fat_content</th>
-<th align="left">c_pregnancy</th>
+<th align="right">milk_yield_kg_year</th>
+<th align="right">fat_content_pct</th>
+<th align="left">c_pregnancy_cattle</th>
+<th align="left">animal_type</th>
+<th align="left">animal_subtype</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left"><code>mature_dairy_cattle</code></td>
 <td align="left"><code>spain</code></td>
 <td align="left"><code>diet_dairy_mature</code></td>
-<td align="left"><code>cattle_buffalo [lactating]</code></td>
+<td align="left"><code>cattle_buffalo [lactating cows]</code></td>
 <td align="left"><code>stall</code></td>
 <td align="left"><code>females</code></td>
 <td align="right">8,894.38</td>
 <td align="right">3.73</td>
 <td align="left"><code>cattle and buffalo</code></td>
+<td align="left"><code>cattle</code></td>
+<td align="left"><code>dairy</code></td>
 </tr></tbody>
 </table>
 <hr>
@@ -339,10 +353,10 @@ keys match the census exactly.</p>
 <thead><tr class="header">
 <th align="left">animal_tag</th>
 <th align="left">region</th>
-<th align="right">adult_weight</th>
-<th align="right">productive_period</th>
-<th align="right">initial_weight</th>
-<th align="right">final_weight</th>
+<th align="right">adult_weight_kg</th>
+<th align="right">productive_period_days</th>
+<th align="right">initial_weight_kg</th>
+<th align="right">final_weight_kg</th>
 </tr></thead>
 <tbody><tr class="odd">
 <td align="left"><code>mature_dairy_cattle</code></td>

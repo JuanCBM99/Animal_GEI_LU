@@ -107,15 +107,15 @@ is the single most common source of “unrecognized” errors — keep it in
 mind as you fill in every file below.</p>
 </blockquote>
 <hr>
-<div class="section level2">
-<h2 id="i--user-input-files-user_data">I. User Input Files (<code>user_data/</code>)<a class="anchor" aria-label="anchor" href="#i--user-input-files-user_data"></a>
-</h2>
+<div class="section level3">
+<h3 id="i--user-input-files-user_data">I. User Input Files (<code>user_data/</code>)<a class="anchor" aria-label="anchor" href="#i--user-input-files-user_data"></a>
+</h3>
 <p>These are the templates you must complete to run your specific
 analysis. Follow the <a href="Workflow.html">Workflow Guide</a> for
 step-by-step instructions.</p>
-<div class="section level3">
-<h3 id="population-metrics">Population &amp; Metrics<a class="anchor" aria-label="anchor" href="#population-metrics"></a>
-</h3>
+<div class="section level4">
+<h4 id="population-metrics">Population &amp; Metrics<a class="anchor" aria-label="anchor" href="#population-metrics"></a>
+</h4>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -157,9 +157,9 @@ calculations.</td>
 </tbody>
 </table>
 </div>
-<div class="section level3">
-<h3 id="nutrition-diets">Nutrition &amp; Diets<a class="anchor" aria-label="anchor" href="#nutrition-diets"></a>
-</h3>
+<div class="section level4">
+<h4 id="nutrition-diets">Nutrition &amp; Diets<a class="anchor" aria-label="anchor" href="#nutrition-diets"></a>
+</h4>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -194,9 +194,9 @@ will automatically resolve it using international trade data (see <a href="#fao_
 below).</p>
 </blockquote>
 </div>
-<div class="section level3">
-<h3 id="manure-management">Manure Management<a class="anchor" aria-label="anchor" href="#manure-management"></a>
-</h3>
+<div class="section level4">
+<h4 id="manure-management">Manure Management<a class="anchor" aria-label="anchor" href="#manure-management"></a>
+</h4>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -214,9 +214,9 @@ assigned to this management system.</td>
 </tr></tbody>
 </table>
 </div>
-<div class="section level3">
-<h3 id="reproduction-parameters">Reproduction Parameters<a class="anchor" aria-label="anchor" href="#reproduction-parameters"></a>
-</h3>
+<div class="section level4">
+<h4 id="reproduction-parameters">Reproduction Parameters<a class="anchor" aria-label="anchor" href="#reproduction-parameters"></a>
+</h4>
 <table class="table">
 <colgroup>
 <col width="50%">
@@ -245,14 +245,21 @@ study.</p>
 <strong>not</strong> edit them unless you are an advanced user — but you
 must <strong>consult them</strong> to copy the exact names required in
 your input files.</p>
-<div class="section level3">
-<h3 id="feed_characteristics-csv-nutritional-values">
+<div class="section level4">
+<h4 id="feed_characteristics-csv-nutritional-values">
 <code>feed_characteristics.csv</code> — Nutritional Values<a class="anchor" aria-label="anchor" href="#feed_characteristics-csv-nutritional-values"></a>
-</h3>
+</h4>
 <p>Consult this library to find the correct ingredient names for
 <code>diet_ingredients.csv</code>.</p>
-<p><strong>Key columns:</strong></p>
+</div>
+<div class="section level4">
+<h4 id="key-columns">Key columns<a class="anchor" aria-label="anchor" href="#key-columns"></a>
+</h4>
 <table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">Column</th>
 <th align="left">Meaning</th>
@@ -260,35 +267,52 @@ your input files.</p>
 <tbody>
 <tr class="odd">
 <td align="left"><code>ingredient</code></td>
-<td align="left">Ingredient name</td>
+<td align="left">Unique ingredient identifier (lowercase with
+underscores)</td>
 </tr>
 <tr class="even">
-<td align="left"><code>feed_category</code></td>
-<td align="left">Feed category</td>
+<td align="left"><code>ingredient_type</code></td>
+<td align="left">Category: <code>forage</code>,
+<code>concentrate</code>, <code>milk</code>, or
+<code>milk_replacer</code>
+</td>
 </tr>
 <tr class="odd">
-<td align="left"><code>DM_pct</code></td>
-<td align="left">Dry Matter, % as-fed</td>
+<td align="left"><code>land_type</code></td>
+<td align="left">Agroecological land competition: <code>cropland</code>,
+<code>grassland_convertible</code>,
+<code>grassland_unconvertible</code>, or <code>none</code>
+</td>
 </tr>
 <tr class="even">
+<td align="left"><code>DM_pct</code></td>
+<td align="left">Dry Matter, % as-fed (also scales fresh FAO crop yields
+to DM)</td>
+</tr>
+<tr class="odd">
 <td align="left"><code>ASH_pct</code></td>
 <td align="left">Ash, % DM</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>CP_pct</code></td>
 <td align="left">Crude Protein, % DM</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>EE_pct</code></td>
 <td align="left">Ether Extract, % DM</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left"><code>NDF_pct</code></td>
 <td align="left">Neutral Detergent Fiber, % DM</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="left"><code>DE_pct</code></td>
 <td align="left">Digestible Energy, %</td>
+</tr>
+<tr class="even">
+<td align="left"><code>source_DE</code></td>
+<td align="left">Source or methodology for the Digestible Energy
+value</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>GE_feed_kcal_kg</code></td>
@@ -308,19 +332,49 @@ your input files.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Sources:</strong> most nutritional values come from the
-<strong>FEDNA Tables (2019)</strong>. <code>DE_pct</code> values are
-taken from <strong>Feedipedia</strong>. <code>GE_feed_kcal_kg</code> is
-calculated using the <strong>NRC (1998) Ewan equation</strong>:</p>
+</div>
+<div class="section level4">
+<h4 id="sources">Sources<a class="anchor" aria-label="anchor" href="#sources"></a>
+</h4>
+<ul>
+<li>Most nutritional values come from the <strong>FEDNA Tables
+(2019)</strong>.</li>
+<li>
+<code>DE_pct</code> values are typically taken from
+<strong>Feedipedia</strong>, or specifically tracked via the
+<code>source_DE</code> column.</li>
+<li>
+<strong>Forages (<code>DE_pct</code>)</strong>: Forage ingredients
+often lack standard values. Following the reference methodology, Energy
+Digestibility
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">Ed</annotation></semantics></math>,
+equivalent to <code>DE_pct</code>) is derived from Organic Matter
+digestibility
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">OMd</annotation></semantics></math>).
+First,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">OMd</annotation></semantics></math>
+is estimated from Acid Detergent Fiber
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>D</mi><mi>F</mi></mrow><annotation encoding="application/x-tex">ADF</annotation></semantics></math>):</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mi>M</mi><mi>d</mi><mo>=</mo><mn>74.13</mn><mo>−</mo><mn>1.364</mn><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mi>D</mi><mi>F</mi><mo>−</mo><mn>29.83</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">OMd = 74.13 - 1.364 \times (ADF - 29.83)</annotation></semantics></math></p>
+<p>Then,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">Ed</annotation></semantics></math>
+is calculated using the full regression equation:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mi>d</mi><mo>=</mo><mi>O</mi><mi>M</mi><mi>d</mi><mo>−</mo><mn>3.94</mn><mo>+</mo><mn>0.104</mn><mo>×</mo><mi>C</mi><mi>P</mi><mo>+</mo><mn>0.149</mn><mo>×</mo><mi>E</mi><mi>E</mi><mo>+</mo><mn>0.022</mn><mo>×</mo><mi>N</mi><mi>D</mi><mi>F</mi><mo>−</mo><mn>0.244</mn><mo>×</mo><mi>A</mi><mi>s</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">Ed = OMd - 3.94 + 0.104 \times CP + 0.149 \times EE + 0.022 \times NDF - 0.244 \times Ash</annotation></semantics></math></p>
+<ul>
+<li>
+<code>GE_feed_kcal_kg</code> is calculated using the <strong>NRC
+(1989) Ewan equation</strong>:</li>
+</ul>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mi>E</mi><mspace width="0.278em"></mspace><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">kcal/kg DM</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>4140</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>56</mn><mo>×</mo><mi>E</mi><mi>E</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>15</mn><mo>×</mo><mi>C</mi><mi>P</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>44</mn><mo>×</mo><mi>A</mi><mi>S</mi><mi>H</mi><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \times ASH\%)</annotation></semantics></math></p>
 <p>where <code>EE%</code>, <code>CP%</code>, and <code>ASH%</code>
 correspond to the <code>EE_pct</code>, <code>CP_pct</code>, and
 <code>ASH_pct</code> columns above.</p>
 </div>
-<div class="section level3">
-<h3 id="ipcc_coefficients-csv-metabolic-constants">
+<div class="section level4">
+<h4 id="ipcc_coefficients-csv-metabolic-constants">
 <code>ipcc_coefficients.csv</code> — Metabolic Constants<a class="anchor" aria-label="anchor" href="#ipcc_coefficients-csv-metabolic-constants"></a>
-</h3>
+</h4>
 <p>Consult this file to find the <code>description</code> you need to
 copy into <code>ruminant_definitions.csv</code>. It holds the Tier 2
 constants — indexed by <code>description</code> and
@@ -333,10 +387,10 @@ for maintenance, pregnancy, and lactation, as well as
 (Maximum Methane Producing Capacity) for the manure management
 calculations.</p>
 </div>
-<div class="section level3">
-<h3 id="ipcc_mm-csv-manure-reference">
+<div class="section level4">
+<h4 id="ipcc_mm-csv-manure-reference">
 <code>ipcc_mm.csv</code> — Manure Reference<a class="anchor" aria-label="anchor" href="#ipcc_mm-csv-manure-reference"></a>
-</h3>
+</h4>
 <p>The master list of every valid manure management combination:
 <code>system_base</code>, <code>system_variant</code>,
 <code>climate_zone</code>, and <code>management_months</code>. Your
@@ -345,10 +399,10 @@ exactly — otherwise the model silently returns zero emissions for that
 cohort instead of raising an error, so it’s worth double-checking
 against this file first if a result looks off.</p>
 </div>
-<div class="section level3">
-<h3 id="mapping-csv-database-connector">
+<div class="section level4">
+<h4 id="mapping-csv-database-connector">
 <code>mapping.csv</code> — Database Connector<a class="anchor" aria-label="anchor" href="#mapping-csv-database-connector"></a>
-</h3>
+</h4>
 <p>The bridge between your diet ingredients and the agricultural yield
 and life-cycle-assessment databases, built around four columns:
 <code>ingredient</code>, <code>yield_name</code>,
@@ -365,31 +419,31 @@ conceptually different from the <code>allocation</code> column in
 a cohort’s manure across management systems, while the other splits a
 crop’s environmental burden across its co-products.</p>
 </div>
-<div class="section level3">
-<h3 id="fao_forages-parquet-grass-silage-data-bc3">
+<div class="section level4">
+<h4 id="fao_forages-parquet-grass-silage-data-bc3">
 <code>fao_forages.parquet</code> — Grass &amp; Silage Data
 (BC3)<a class="anchor" aria-label="anchor" href="#fao_forages-parquet-grass-silage-data-bc3"></a>
-</h3>
+</h4>
 <p>A provisional forage database, supplemented by BC3 researchers,
 giving yields (<code>Area</code>, <code>Item</code>, <code>Value</code>
 in kg DM/ha) for grazing and forage-based systems — filling the gaps
 where official FAOSTAT records are often incomplete or missing.</p>
 </div>
-<div class="section level3">
-<h3 id="fao_crops-parquet-official-statutory-yields">
+<div class="section level4">
+<h4 id="fao_crops-parquet-official-statutory-yields">
 <code>fao_crops.parquet</code> — Official Statutory Yields<a class="anchor" aria-label="anchor" href="#fao_crops-parquet-official-statutory-yields"></a>
-</h3>
+</h4>
 <p>Direct yield data for grains and pulses from FAOSTAT (2024), with the
 same <code>Area</code> / <code>Item</code> / <code>Value</code> (kg
 DM/ha) structure plus a <code>Year</code> column. This sets the
 international standard used to calculate the land footprint (m²) of
 concentrate feeds and commercial crops.</p>
 </div>
-<div class="section level3">
-<h3 id="fao_trade_matrix">
+<div class="section level4">
+<h4 id="fao_trade_matrix">
 <code>fao_trade_matrix.parquet</code> — Dynamic Trade Background
 (Auto-Downloaded)<a class="anchor" aria-label="anchor" href="#fao_trade_matrix"></a>
-</h3>
+</h4>
 <p>Unlike the other libraries, this file is <strong>not</strong> tracked
 in the repository, due to its size (~187 MB). It’s downloaded
 automatically from GitHub Releases the first time <code>herdr</code>
@@ -399,10 +453,9 @@ that estimates missing feed origins from FAO production and trade data
 under a 70% self-sufficiency rule.</p>
 <hr>
 </div>
-</div>
-<div class="section level2">
-<h2 id="iii--quick-reference-table">III. Quick Reference Table<a class="anchor" aria-label="anchor" href="#iii--quick-reference-table"></a>
-</h2>
+<div class="section level3">
+<h3 id="iii--quick-reference-table">III. Quick Reference Table<a class="anchor" aria-label="anchor" href="#iii--quick-reference-table"></a>
+</h3>
 <p>Use this table to know where to look when filling out your data:</p>
 <table class="table">
 <colgroup>
@@ -443,9 +496,9 @@ under a 70% self-sufficiency rule.</p>
 </table>
 <hr>
 </div>
-<div class="section level2">
-<h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
-</h2>
+<div class="section level3">
+<h3 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+</h3>
 <ul>
 <li>
 <a href="Workflow.html">General Workflow</a> — how these files fit
@@ -458,6 +511,7 @@ self-sufficiency and trade-allocation engine behind
 <a href="Manure.html">Manure Management Guide</a> — every supported
 combination in <code>ipcc_mm.csv</code>, explained.</li>
 </ul>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -16,14 +16,14 @@ correctly, files are divided into two categories:
 
 ------------------------------------------------------------------------
 
-## I. User Input Files (`user_data/`)
+### I. User Input Files (`user_data/`)
 
 These are the templates you must complete to run your specific analysis.
 Follow the [Workflow
 Guide](https://juancbm99.github.io/herdr/articles/Workflow.md) for
 step-by-step instructions.
 
-### Population & Metrics
+#### Population & Metrics
 
 | File | Purpose |
 |:---|:---|
@@ -32,7 +32,7 @@ step-by-step instructions.
 | `ruminant_definitions.csv` | Bridge file for **ruminant** animals. Links each `animal_tag` to a `diet_tag` and an IPCC description. Includes key reproductive parameters like pregnancy rate (`pregnancy_rate`) and prolificacy (`pr`). |
 | `monogastric_definitions.csv` | Bridge file for **monogastric** animals. Links each `animal_tag` to a `diet_tag` and the species-specific parameters required for monogastric energy calculations. |
 
-### Nutrition & Diets
+#### Nutrition & Diets
 
 | File | Purpose |
 |:---|:---|
@@ -44,13 +44,13 @@ step-by-step instructions.
 > The package will automatically resolve it using international trade
 > data (see [`fao_trade_matrix.parquet`](#fao_trade_matrix) below).
 
-### Manure Management
+#### Manure Management
 
 | File | Purpose |
 |:---|:---|
 | `manure_management.csv` | Defines how waste is handled: system, climate, and `allocation` (0 to 1) — the share of that cohort’s manure assigned to this management system. |
 
-### Reproduction Parameters
+#### Reproduction Parameters
 
 | File | Purpose |
 |:---|:---|
@@ -68,31 +68,53 @@ These files are the “brain” of the package. You should **not** edit them
 unless you are an advanced user — but you must **consult them** to copy
 the exact names required in your input files.
 
-### `feed_characteristics.csv` — Nutritional Values
+#### `feed_characteristics.csv` — Nutritional Values
 
 Consult this library to find the correct ingredient names for
 `diet_ingredients.csv`.
 
-**Key columns:**
+#### Key columns
 
-| Column               | Meaning                                      |
-|:---------------------|:---------------------------------------------|
-| `ingredient`         | Ingredient name                              |
-| `feed_category`      | Feed category                                |
-| `DM_pct`             | Dry Matter, % as-fed                         |
-| `ASH_pct`            | Ash, % DM                                    |
-| `CP_pct`             | Crude Protein, % DM                          |
-| `EE_pct`             | Ether Extract, % DM                          |
-| `NDF_pct`            | Neutral Detergent Fiber, % DM                |
-| `DE_pct`             | Digestible Energy, %                         |
-| `GE_feed_kcal_kg`    | Gross Energy, kcal/kg DM                     |
-| `swine_DE_kcal_kg`   | Digestible Energy for swine, kcal/kg DM      |
-| `swine_ME_kcal_kg`   | Metabolizable Energy for swine, kcal/kg DM   |
+| Column | Meaning |
+|:---|:---|
+| `ingredient` | Unique ingredient identifier (lowercase with underscores) |
+| `ingredient_type` | Category: `forage`, `concentrate`, `milk`, or `milk_replacer` |
+| `land_type` | Agroecological land competition: `cropland`, `grassland_convertible`, `grassland_unconvertible`, or `none` |
+| `DM_pct` | Dry Matter, % as-fed (also scales fresh FAO crop yields to DM) |
+| `ASH_pct` | Ash, % DM |
+| `CP_pct` | Crude Protein, % DM |
+| `EE_pct` | Ether Extract, % DM |
+| `NDF_pct` | Neutral Detergent Fiber, % DM |
+| `DE_pct` | Digestible Energy, % |
+| `source_DE` | Source or methodology for the Digestible Energy value |
+| `GE_feed_kcal_kg` | Gross Energy, kcal/kg DM |
+| `swine_DE_kcal_kg` | Digestible Energy for swine, kcal/kg DM |
+| `swine_ME_kcal_kg` | Metabolizable Energy for swine, kcal/kg DM |
 | `poultry_ME_kcal_kg` | Metabolizable Energy for poultry, kcal/kg DM |
 
-**Sources:** most nutritional values come from the **FEDNA Tables
-(2019)**. `DE_pct` values are taken from **Feedipedia**.
-`GE_feed_kcal_kg` is calculated using the **NRC (1998) Ewan equation**:
+#### Sources
+
+- Most nutritional values come from the **FEDNA Tables (2019)**.
+- `DE_pct` values are typically taken from **Feedipedia**, or
+  specifically tracked via the `source_DE` column.
+- **Forages (`DE_pct`)**: Forage ingredients often lack standard values.
+  Following the reference methodology, Energy Digestibility ($`Ed`$,
+  equivalent to `DE_pct`) is derived from Organic Matter digestibility
+  ($`OMd`$). First, $`OMd`$ is estimated from Acid Detergent Fiber
+  ($`ADF`$):
+
+``` math
+OMd = 74.13 - 1.364 \times (ADF - 29.83)
+```
+
+Then, $`Ed`$ is calculated using the full regression equation:
+
+``` math
+Ed = OMd - 3.94 + 0.104 \times CP + 0.149 \times EE + 0.022 \times NDF - 0.244 \times Ash
+```
+
+- `GE_feed_kcal_kg` is calculated using the **NRC (1989) Ewan
+  equation**:
 
 ``` math
 GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \times ASH\%)
@@ -101,7 +123,7 @@ GE\;(\text{kcal/kg DM}) = 4140 + (56 \times EE\%) + (15 \times CP\%) - (44 \time
 where `EE%`, `CP%`, and `ASH%` correspond to the `EE_pct`, `CP_pct`, and
 `ASH_pct` columns above.
 
-### `ipcc_coefficients.csv` — Metabolic Constants
+#### `ipcc_coefficients.csv` — Metabolic Constants
 
 Consult this file to find the `description` you need to copy into
 `ruminant_definitions.csv`. It holds the Tier 2 constants — indexed by
@@ -110,7 +132,7 @@ corresponding `value` — that define energy needs for maintenance,
 pregnancy, and lactation, as well as $`B_0`$ (Maximum Methane Producing
 Capacity) for the manure management calculations.
 
-### `ipcc_mm.csv` — Manure Reference
+#### `ipcc_mm.csv` — Manure Reference
 
 The master list of every valid manure management combination:
 `system_base`, `system_variant`, `climate_zone`, and
@@ -119,7 +141,7 @@ row here exactly — otherwise the model silently returns zero emissions
 for that cohort instead of raising an error, so it’s worth
 double-checking against this file first if a result looks off.
 
-### `mapping.csv` — Database Connector
+#### `mapping.csv` — Database Connector
 
 The bridge between your diet ingredients and the agricultural yield and
 life-cycle-assessment databases, built around four columns:
@@ -137,21 +159,21 @@ shares, but one splits a cohort’s manure across management systems,
 while the other splits a crop’s environmental burden across its
 co-products.
 
-### `fao_forages.parquet` — Grass & Silage Data (BC3)
+#### `fao_forages.parquet` — Grass & Silage Data (BC3)
 
 A provisional forage database, supplemented by BC3 researchers, giving
 yields (`Area`, `Item`, `Value` in kg DM/ha) for grazing and
 forage-based systems — filling the gaps where official FAOSTAT records
 are often incomplete or missing.
 
-### `fao_crops.parquet` — Official Statutory Yields
+#### `fao_crops.parquet` — Official Statutory Yields
 
 Direct yield data for grains and pulses from FAOSTAT (2024), with the
 same `Area` / `Item` / `Value` (kg DM/ha) structure plus a `Year`
 column. This sets the international standard used to calculate the land
 footprint (m²) of concentrate feeds and commercial crops.
 
-### `fao_trade_matrix.parquet` — Dynamic Trade Background (Auto-Downloaded)
+#### `fao_trade_matrix.parquet` — Dynamic Trade Background (Auto-Downloaded)
 
 Unlike the other libraries, this file is **not** tracked in the
 repository, due to its size (~187 MB). It’s downloaded automatically
@@ -162,7 +184,7 @@ production and trade data under a 70% self-sufficiency rule.
 
 ------------------------------------------------------------------------
 
-## III. Quick Reference Table
+### III. Quick Reference Table
 
 Use this table to know where to look when filling out your data:
 
@@ -175,7 +197,7 @@ Use this table to know where to look when filling out your data:
 
 ------------------------------------------------------------------------
 
-## Next steps
+### Next steps
 
 - [General
   Workflow](https://juancbm99.github.io/herdr/articles/Workflow.md) —

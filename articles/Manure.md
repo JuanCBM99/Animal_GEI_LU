@@ -86,12 +86,6 @@ The `climate_moisture` column serves as a secondary filter.
     `climate_moisture` to define the local state (`wet` or `dry`). If
     the distinction is unknown or does not apply, use `default`.
 
-#### Animal Classification
-
-Every row must specify the correct species and production type:
-
-[TABLE]
-
 ------------------------------------------------------------------------
 
 ### 🌍 IPCC Climate Zone Definitions

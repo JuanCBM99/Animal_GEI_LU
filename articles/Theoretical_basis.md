@@ -25,7 +25,7 @@ NE_m = Cf_i \cdot Weight^{0.75}
 |:---|:---|:---|
 | $`NE_m`$ | Net energy for maintenance (MJ/day) | Calculated |
 | $`Cf_i`$ | Maintenance coefficient based on animal species/status | `ipcc_coefficients.csv` |
-| $`Weight`$ | Live weight of the individual animal (kg) | `weights.csv` |
+| $`Weight`$ | Live weight of the individual animal (kg) | `livestock_weights.csv` |
 
 ------------------------------------------------------------------------
 
@@ -42,7 +42,7 @@ activities.
 | $`NE_a`$ | Net energy for activity (MJ/day) | Calculated |
 | $`C_a`$ | Activity coefficient (varies by feeding situation) | `ipcc_coefficients.csv` |
 | $`NE_m`$ | Maintenance energy | Result of Eq. 10.3 |
-| $`Weight`$ | Live weight of the animal (kg) | `weights.csv` |
+| $`Weight`$ | Live weight of the animal (kg) | `livestock_weights.csv` |
 
 ------------------------------------------------------------------------
 
@@ -62,11 +62,11 @@ Energy required for tissue deposition (weight gain).
 
 | Variable | Description | Source in the Package |
 |:---|:---|:---|
-| $`BW`$ | Average live body weight of the animal (kg) | `weights.csv` |
-| $`MW`$ | Mature body weight of an adult (kg) | `weights.csv` |
-| $`WG`$ | Daily weight gain (kg/day) | `weights.csv` |
+| $`BW`$ | Average live body weight of the animal (kg) | `livestock_weights.csv` |
+| $`MW`$ | Mature body weight of an adult (kg) | `livestock_weights.csv` |
+| $`WG`$ | Daily weight gain (kg/day) | `livestock_weights.csv` |
 | $`C, a, b`$ | IPCC species-specific growth constants | `ipcc_coefficients.csv` |
-| $`BW_i / BW_f`$ | Initial and final weight for the period (kg) | `weights.csv` |
+| $`BW_i / BW_f`$ | Initial and final weight for the period (kg) | `livestock_weights.csv` |
 
 ------------------------------------------------------------------------
 
