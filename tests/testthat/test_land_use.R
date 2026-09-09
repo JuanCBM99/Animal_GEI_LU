@@ -32,9 +32,7 @@ test_that("calculate_land_use computes m2 safely without triggering FAO engine",
       df <- df %>% mutate(country_of_origin = ifelse(is.na(country_of_origin), "Spain", country_of_origin))
     }
 
-    if (!"custom_yield_kg_ha" %in% names(df)) {
-      df <- df %>% mutate(custom_yield_kg_ha = NA_character_)
-    }
+    df <- df %>% mutate(custom_yield_kg_ha = "5000")
 
     write_csv(df, path_diet)
   }
@@ -59,19 +57,18 @@ test_that("calculate_land_use handles NA origins via FAO engine safely (Parquet 
     df <- read_csv(path_diet, col_types = cols(.default = "c"), show_col_types = FALSE)
     df$country_of_origin[1] <- NA
 
-    if (!"custom_yield_kg_ha" %in% names(df)) {
-      df <- df %>% mutate(custom_yield_kg_ha = NA_character_)
-    }
+    df <- df %>% mutate(custom_yield_kg_ha = "5000")
+    df$custom_yield_kg_ha[1] <- NA
 
     write_csv(df, path_diet)
   }
 
   map_path <- "user_data/mapping.csv"
-  real_item <- "Maize"
+  real_item <- "Maize (corn)"
   if (file.exists(map_path)) {
     map_df <- read_csv(map_path, col_types = cols(.default = "c"), show_col_types = FALSE)
-    valid_items <- na.omit(map_df$yield_name)
-    if (length(valid_items) > 0) real_item <- valid_items[1]
+    match_item <- map_df$yield_name[map_df$ingredient == df$ingredient[1]]
+    if (length(match_item) > 0 && !is.na(match_item[1])) real_item <- match_item[1]
   }
 
   dummy_crops <- data.frame(
@@ -104,7 +101,7 @@ test_that("calculate_land_use handles NA origins via FAO engine safely (Parquet 
 # ==============================================================================
 # TEST 3: WARNINGS (Using a fake country to test missing yields safely)
 # ==============================================================================
-test_that("calculate_land_use throws correct warnings for missing yields", {
+test_that("calculate_land_use halts with error for missing yields of consumed ingredients", {
   temp_test_dir <- tempfile()
   dir.create(temp_test_dir)
   file.copy(from = test_path("test_data/user_data"), to = temp_test_dir, recursive = TRUE)
@@ -130,7 +127,8 @@ test_that("calculate_land_use throws correct warnings for missing yields", {
     write_csv(df, path_diet)
   }
 
-  warns <- capture_warnings(calculate_land_use(farm_country = "Spain", year = 2022, saveoutput = FALSE))
-
-  expect_true(any(grepl("Missing yield", warns)))
+  expect_error(
+    calculate_land_use(farm_country = "Spain", year = 2022, saveoutput = FALSE),
+    "Missing yield"
+  )
 })

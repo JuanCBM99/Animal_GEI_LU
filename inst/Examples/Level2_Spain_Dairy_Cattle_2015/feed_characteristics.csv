@@ -366,4 +366,6 @@ milk_replacer,milk_replacer,none,95.9,9.49,23.02,17.62,0.44,84.2,5054.46,,,,MAPA
 concentrate,aroma,none,100,0,0,0,0,0,4140,,,,feedtables
 concentrate,Vitamin/mineral_supplement,none,100,0,0,0,0,0,4140,,,,feedtables
 concentrate,potassium_carbonate,none,100,0,0,0,0,0,4140,,,,feedtables
-forage,natural_pasture_fresh,grassland_unconvertible,33.77,10.47,16.3,3.96,52.81,72.58,4145.58,,,,SEEP
+forage,mountain_pasture_fresh,grassland_unconvertible,33.77,10.47,16.3,3.96,52.81,71.84622,4145.58,,,,SEEP
+forage,mediterranean_pasture_fresh,grassland_unconvertible,30.54,9.01,13.55,3.48,57.01,66.6041,4141.69,,,,SEEP
+forage,atlantic_pasture_fresh,grassland_unconvertible,27.22,8.24,11.46,2.93,57.87,62.80151,4113.42,,,,SEEP

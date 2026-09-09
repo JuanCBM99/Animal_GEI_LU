@@ -26,3 +26,6 @@ exampleRepoCheatsheet.pdf
 ^Examples$
 fao_trade_matrix\.parquet$
 ^\.Renviron$
+^RE1_FORRAJEROS.*$
+^spain_forages_mapa_2024\.parquet$
+^herdr$

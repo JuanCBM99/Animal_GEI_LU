@@ -56,6 +56,8 @@ calculate_land_use <- function(automatic_cycle = FALSE,
   }
 
   feed_chars <- feed_chars_raw %>%
+    dplyr::filter(!is.na(ingredient)) %>%
+    dplyr::mutate(DM_pct = suppressWarnings(as.numeric(DM_pct))) %>%
     dplyr::select(ingredient, land_type, DM_pct) %>%
     dplyr::distinct(ingredient, .keep_all = TRUE)
 
@@ -276,6 +278,7 @@ calculate_land_use <- function(automatic_cycle = FALSE,
     dplyr::inner_join(diet_profiles, by = c("region", "subregion", "class_flex", "diet_tag")) %>%
     dplyr::inner_join(diet_ingredients, by = c("diet_tag", "region", "subregion", "class_flex")) %>%
     dplyr::left_join(fao_yields, by = c("ingredient", "country_of_origin")) %>%
+    dplyr::left_join(name_mapping %>% dplyr::select(ingredient, alloc_ref = economic_allocation) %>% dplyr::distinct(), by = "ingredient") %>%
     dplyr::left_join(feed_chars, by = "ingredient") %>%
     dplyr::mutate(
       raw_yield = dplyr::case_when(
@@ -284,21 +287,45 @@ calculate_land_use <- function(automatic_cycle = FALSE,
         is.na(dm_yield) & !is.na(fallback_yield)  ~ fallback_yield,
         TRUE                                       ~ dm_yield
       ),
-      dm_yield = dplyr::if_else(
-        is.na(custom_yield_kg_ha) & raw_yield > 0,
-        raw_yield * (DM_pct / 100),
-        raw_yield
+      dm_yield = dplyr::case_when(
+        !is.na(custom_yield_kg_ha)               ~ raw_yield,
+        ingredient_type == "forage"              ~ raw_yield,
+        raw_yield > 0                            ~ raw_yield * (suppressWarnings(as.numeric(DM_pct)) / 100),
+        TRUE                                     ~ raw_yield
       ),
       ha_per_kg = dplyr::if_else(dm_yield > 0, 1 / dm_yield, 0)
     )
 
+  # --- Validate that all consumed ingredients requiring land have yields ---
   missing_yields <- results %>%
-    dplyr::filter(is.na(dm_yield)) %>%
-    dplyr::select(ingredient, country_of_origin) %>%
+    dplyr::mutate(economic_allocation = dplyr::coalesce(economic_allocation, as.numeric(alloc_ref), 1)) %>%
+    dplyr::filter(
+      is.na(dm_yield),
+      !land_type %in% c("none", "no_land"),
+      as.numeric(ingredient_share) > 0,
+      dplyr::coalesce(economic_allocation, 1) > 0
+    ) %>%
+    dplyr::select(ingredient, country_of_origin, ingredient_type) %>%
     dplyr::distinct()
 
   if (nrow(missing_yields) > 0) {
-    warning("\u26A0 Missing yield for: ", paste0(missing_yields$ingredient, "(", missing_yields$country_of_origin, ")", collapse = ", "))
+    forage_miss <- missing_yields %>% dplyr::filter(ingredient_type == "forage")
+    other_miss  <- missing_yields %>% dplyr::filter(ingredient_type != "forage")
+    err_msgs <- c()
+    if (nrow(forage_miss) > 0) {
+      err_msgs <- c(err_msgs, paste0(
+        "Forage yields are currently only available for Spain (MAPA 2024). ",
+        "Missing yield for: ", paste0(forage_miss$ingredient, " (", forage_miss$country_of_origin, ")", collapse = ", "),
+        ". Please specify 'custom_yield_kg_ha' in 'diet_ingredients.csv'."
+      ))
+    }
+    if (nrow(other_miss) > 0) {
+      err_msgs <- c(err_msgs, paste0(
+        "Missing yield for: ", paste0(other_miss$ingredient, " (", other_miss$country_of_origin, ")", collapse = ", "),
+        ". Please specify 'custom_yield_kg_ha' in 'diet_ingredients.csv'."
+      ))
+    }
+    stop(paste0("\u274C [herdr] Land use calculation halted: ", paste(err_msgs, collapse = " | ")), call. = FALSE)
   }
 
   results <- results %>%
